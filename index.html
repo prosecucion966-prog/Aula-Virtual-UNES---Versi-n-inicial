@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aula Virtual | Diplomado en Docencia Universitaria - UNES</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header class="header">
+    <div class="container header-content">
+        <div class="logo">
+            <span class="logo-icon">🎓</span>
+            <div>
+                <h1>Aula Virtual</h1>
+                <span class="logo-sub">UNES · Docencia Universitaria</span>
+            </div>
+        </div>
+        <nav class="nav">
+            <a data-view="inicio" class="active">Inicio</a>
+            <a data-view="unidades">Unidades</a>
+            <a data-view="progreso">Mi Progreso</a>
+            <a data-view="acerca">Acerca de</a>
+        </nav>
+        <div id="userArea">
+            <button class="btn-primary" id="btnRegistro">Matricularme</button>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+
+    <!-- ============ VISTA INICIO ============ -->
+    <section id="view-inicio" class="view active">
+        <div class="hero">
+            <span class="hero-badge">Vigencia 2026 · Acuerdo N° 0000737</span>
+            <h2>Diplomado en Docencia Universitaria</h2>
+            <p>200 horas académicas · Modalidad Presencial · 9 unidades curriculares</p>
+            <div id="heroAcciones" class="hero-acciones">
+                <button class="btn-hero" onclick="mostrarVista('unidades')">Ver unidades →</button>
+                <button class="btn-hero btn-hero-outline" id="btnRegistroHero">Matricularme</button>
+            </div>
+        </div>
+        <div class="stats" id="statsGlobales">
+            <div class="stat-card"><span class="stat-num">9</span><span class="stat-label">Unidades</span></div>
+            <div class="stat-card"><span class="stat-num">200</span><span class="stat-label">Horas académicas</span></div>
+            <div class="stat-card"><span class="stat-num">18</span><span class="stat-label">Evaluaciones</span></div>
+            <div class="stat-card"><span class="stat-num">2</span><span class="stat-label">Intentos por eval</span></div>
+        </div>
+        <h3 class="section-title">Unidades destacadas</h3>
+        <div class="grid" id="unidadesDestacadas"></div>
+    </section>
+
+    <!-- ============ VISTA UNIDADES ============ -->
+    <section id="view-unidades" class="view">
+        <div class="view-header">
+            <h2>Unidades Curriculares</h2>
+            <div class="filtros">
+                <button class="filtro active" data-fase="todas">Todas</button>
+                <button class="filtro" data-fase="Fundamentación">Fundamentación</button>
+                <button class="filtro" data-fase="Herramientas">Herramientas</button>
+                <button class="filtro" data-fase="Aplicación Praxis">Aplicación Praxis</button>
+            </div>
+        </div>
+        <div class="grid" id="listaUnidades"></div>
+    </section>
+
+    <!-- ============ VISTA PROGRESO ============ -->
+    <section id="view-progreso" class="view">
+        <div class="view-header">
+            <h2>Mi Progreso</h2>
+            <button class="btn-primary" id="btnCertificado" style="display:none;">🎓 Ver Certificado</button>
+        </div>
+        <div id="progresoContenido"></div>
+    </section>
+
+    <!-- ============ VISTA ACERCA DE ============ -->
+    <section id="view-acerca" class="view">
+        <h2>Acerca del Diplomado</h2>
+        <div class="acerca-grid">
+            <div class="info-card">
+                <h3>📌 Datos generales</h3>
+                <ul>
+                    <li><b>Institución:</b> UNES</li>
+                    <li><b>Modalidad:</b> Presencial</li>
+                    <li><b>Duración:</b> 200 horas</li>
+                    <li><b>Vigencia:</b> 2026</li>
+                    <li><b>Acuerdo:</b> N° 0000737</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>🎯 Objetivo general</h3>
+                <p>Formar a profesionales no docentes, con conocimientos teóricos y herramientas metodológicas para su efectivo desenvolvimiento dentro del campo de la docencia.</p>
+            </div>
+            <div class="info-card">
+                <h3>👥 Dirigido a</h3>
+                <p>Profesionales universitarios que desempeñen funciones como instructores o facilitadores en los órganos de Seguridad Ciudadana y entes del Estado, así como profesionales de diversas áreas interesados en la docencia.</p>
+            </div>
+            <div class="info-card">
+                <h3>📋 Requisitos de egreso</h3>
+                <ul>
+                    <li>95% de asistencia presencial</li>
+                    <li>Aprobar las 9 unidades (mín. 12 pts)</li>
+                    <li>Micro-clase ante jurado evaluador</li>
+                    <li>Solvencia académica y administrativa</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>🏛️ Marco legal</h3>
+                <ul>
+                    <li>Constitución (1999) - Arts. 102, 103, 109</li>
+                    <li>Ley Orgánica de Educación (2009) - Art. 38</li>
+                    <li>Ley de Universidades - Arts. 9, 26</li>
+                </ul>
+            </div>
+            <div class="info-card">
+                <h3>✍️ Autoridades</h3>
+                <ul>
+                    <li><b>Rector:</b> Msc. Fabio Zavarse Pabón</li>
+                    <li><b>Vicerrector Académico:</b> Cnel. Simón León</li>
+                    <li><b>Vicerrector Administrativo:</b> Cnel. Joel Paredes</li>
+                    <li><b>Secretario General:</b> G/D José Betancourt</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer class="footer">
+    <p>© 2026 UNES · Vicerrectorado de Desarrollo Académico · Acuerdo N° 0000737</p>
+</footer>
+
+<!-- ============ MODAL REGISTRO ============ -->
+<div class="modal" id="modalRegistro">
+    <div class="modal-content">
+        <span class="modal-close" onclick="cerrarModal('modalRegistro')">&times;</span>
+        <h3>🎓 Matriculación al Diplomado</h3>
+        <p class="modal-sub">Completa tus datos para inscribirte</p>
+        <form id="formRegistro">
+            <input type="text" id="regNombre" placeholder="Nombre completo" required>
+            <input type="text" id="regCedula" placeholder="Cédula (V-12345678)" required>
+            <input type="email" id="regEmail" placeholder="Correo electrónico" required>
+            <input type="text" id="regTelefono" placeholder="Teléfono (opcional)">
+            <input type="text" id="regProfesion" placeholder="Profesión (opcional)">
+            <input type="text" id="regInstitucion" placeholder="Institución donde labora (opcional)">
+            <button type="submit" class="btn-primary btn-block">Matricularme</button>
+        </form>
+    </div>
+</div>
+
+<!-- ============ MODAL LOGIN ============ -->
+<div class="modal" id="modalLogin">
+    <div class="modal-content">
+        <span class="modal-close" onclick="cerrarModal('modalLogin')">&times;</span>
+        <h3>Iniciar Sesión</h3>
+        <form id="formLogin">
+            <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
+            <button type="submit" class="btn-primary btn-block">Entrar</button>
+            <p class="hint">Usa el correo con el que te matriculaste</p>
+        </form>
+    </div>
+</div>
+
+<!-- ============ MODAL UNIDAD (GUÍA) ============ -->
+<div class="modal" id="modalUnidad">
+    <div class="modal-content modal-xl">
+        <span class="modal-close" onclick="cerrarModal('modalUnidad')">&times;</span>
+        <div id="detalleUnidad"></div>
+    </div>
+</div>
+
+<!-- ============ MODAL EVALUACIÓN ============ -->
+<div class="modal" id="modalEval">
+    <div class="modal-content modal-lg">
+        <span class="modal-close" onclick="cerrarModal('modalEval')">&times;</span>
+        <div id="contenidoEval"></div>
+    </div>
+</div>
+
+<!-- ============ MODAL CERTIFICADO ============ -->
+<div class="modal" id="modalCert">
+    <div class="modal-content modal-cert">
+        <span class="modal-close" onclick="cerrarModal('modalCert')">&times;</span>
+        <div id="contenidoCert"></div>
+    </div>
+</div>
+
+<script src="data.js"></script>
+<script src="supabase-client.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
