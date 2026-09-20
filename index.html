@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Aula Virtual | Diplomado en Docencia Universitaria - UNES</title>
+    <meta name="description" content="Aula Virtual del Diplomado en Docencia Universitaria de la UNES - 200 horas, modalidad presencial, vigencia 2026.">
     <link rel="stylesheet" href="styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- ============ HEADER ============ -->
+<!-- ============================================
+     HEADER INSTITUCIONAL
+     ============================================ -->
 <header class="header">
     <div class="container header-content">
         <div class="logo">
-            <span class="logo-icon">🎓</span>
+            <img src="https://www.unes.com.ve/_next/static/media/Unes.ab4c127e.png" 
+                 alt="Escudo UNES" 
+                 class="logo-img">
             <div>
                 <h1>Aula Virtual</h1>
                 <span class="logo-sub">UNES · Docencia Universitaria</span>
@@ -22,29 +28,34 @@
         <nav class="nav">
             <a data-view="inicio" class="active">Inicio</a>
             <a data-view="unidades">Unidades</a>
-            <a data-view="progreso">Mi Progreso</a>
+            <a data-view="progreso" id="navProgreso" style="display:none;">Mi Progreso</a>
+            <a data-view="admin" id="navAdmin" style="display:none;">Panel Admin</a>
+            <a data-view="supervisor" id="navSupervisor" style="display:none;">Panel Supervisor</a>
             <a data-view="acerca">Acerca de</a>
         </nav>
         <div id="userArea">
-            <button class="btn-primary" id="btnRegistro">Matricularme</button>
+            <button class="btn-primary" id="btnEstudiante">Soy Estudiante</button>
+            <button class="btn-user" id="btnStaff" style="margin-left:8px">Staff UNES</button>
         </div>
     </div>
 </header>
 
 <main class="container">
 
-    <!-- ============ VISTA INICIO ============ -->
+    <!-- ============================================
+         VISTA INICIO
+         ============================================ -->
     <section id="view-inicio" class="view active">
         <div class="hero">
             <span class="hero-badge">Vigencia 2026 · Acuerdo N° 0000737</span>
             <h2>Diplomado en Docencia Universitaria</h2>
-            <p>200 horas académicas · Modalidad Multimodal · 9 unidades curriculares</p>
-            <div id="heroAcciones" class="hero-acciones">
+            <p>200 horas académicas · Modalidad Presencial · 9 unidades curriculares</p>
+            <div class="hero-acciones">
                 <button class="btn-hero" onclick="mostrarVista('unidades')">Ver unidades →</button>
                 <button class="btn-hero btn-hero-outline" id="btnRegistroHero">Matricularme</button>
             </div>
         </div>
-        <div class="stats" id="statsGlobales">
+        <div class="stats">
             <div class="stat-card"><span class="stat-num">9</span><span class="stat-label">Unidades</span></div>
             <div class="stat-card"><span class="stat-num">200</span><span class="stat-label">Horas académicas</span></div>
             <div class="stat-card"><span class="stat-num">18</span><span class="stat-label">Evaluaciones</span></div>
@@ -54,7 +65,9 @@
         <div class="grid" id="unidadesDestacadas"></div>
     </section>
 
-    <!-- ============ VISTA UNIDADES ============ -->
+    <!-- ============================================
+         VISTA UNIDADES
+         ============================================ -->
     <section id="view-unidades" class="view">
         <div class="view-header">
             <h2>Unidades Curriculares</h2>
@@ -68,7 +81,9 @@
         <div class="grid" id="listaUnidades"></div>
     </section>
 
-    <!-- ============ VISTA PROGRESO ============ -->
+    <!-- ============================================
+         VISTA PROGRESO (estudiante)
+         ============================================ -->
     <section id="view-progreso" class="view">
         <div class="view-header">
             <h2>Mi Progreso</h2>
@@ -77,7 +92,94 @@
         <div id="progresoContenido"></div>
     </section>
 
-    <!-- ============ VISTA ACERCA DE ============ -->
+    <!-- ============================================
+         VISTA PANEL ADMIN
+         ============================================ -->
+    <section id="view-admin" class="view">
+        <div class="view-header">
+            <h2>👑 Panel de Administrador</h2>
+            <button class="btn-primary" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card"><span class="stat-num" id="admTotalEst">0</span><span class="stat-label">Estudiantes</span></div>
+            <div class="stat-card"><span class="stat-num" id="admTotalSup">0</span><span class="stat-label">Supervisores</span></div>
+            <div class="stat-card"><span class="stat-num" id="admTotalCert">0</span><span class="stat-label">Certificados</span></div>
+            <div class="stat-card"><span class="stat-num" id="admTotalAprob">0</span><span class="stat-label">Aprobados</span></div>
+        </div>
+
+        <div class="progreso-card">
+            <div class="view-header" style="margin-bottom:15px">
+                <h3>👥 Usuarios del Sistema</h3>
+                <button class="btn-primary" onclick="abrirModal('modalCrearUsuario')">+ Nuevo Usuario</button>
+            </div>
+            <table class="progreso-tabla">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaUsuarios"></tbody>
+            </table>
+        </div>
+
+        <div class="progreso-card">
+            <h3>🎓 Estudiantes Matriculados</h3>
+            <table class="progreso-tabla">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Cédula</th>
+                        <th>Email</th>
+                        <th>Progreso</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaEstudiantesAdmin"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VISTA PANEL SUPERVISOR
+         ============================================ -->
+    <section id="view-supervisor" class="view">
+        <div class="view-header">
+            <h2>👨‍🏫 Panel de Supervisor</h2>
+            <button class="btn-primary" onclick="cerrarSesion()">Cerrar Sesión</button>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card"><span class="stat-num" id="supTotalEst">0</span><span class="stat-label">Mis Estudiantes</span></div>
+            <div class="stat-card"><span class="stat-num" id="supTotalAprob">0</span><span class="stat-label">Aprobados</span></div>
+            <div class="stat-card"><span class="stat-num" id="supPromedio">0.0</span><span class="stat-label">Promedio</span></div>
+            <div class="stat-card"><span class="stat-num" id="supTotalCert">0</span><span class="stat-label">Certificados</span></div>
+        </div>
+
+        <div class="progreso-card">
+            <h3>📊 Avance de Estudiantes</h3>
+            <table class="progreso-tabla">
+                <thead>
+                    <tr>
+                        <th>Estudiante</th>
+                        <th>Unidades aprobadas</th>
+                        <th>Promedio</th>
+                        <th>Estado</th>
+                        <th>Ver</th>
+                    </tr>
+                </thead>
+                <tbody id="tablaEstudiantesSupervisor"></tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ============================================
+         VISTA ACERCA DE
+         ============================================ -->
     <section id="view-acerca" class="view">
         <h2>Acerca del Diplomado</h2>
         <div class="acerca-grid">
@@ -132,9 +234,32 @@
 
 <footer class="footer">
     <p>© 2026 UNES · Vicerrectorado de Desarrollo Académico · Acuerdo N° 0000737</p>
+    <p class="footer-small">Aula Virtual desplegada en Vercel · Sistema multi-rol</p>
 </footer>
 
-<!-- ============ MODAL REGISTRO ============ -->
+<!-- ============================================
+     MODAL: SELECCIÓN DE ROL ESTUDIANTE
+     ============================================ -->
+<div class="modal" id="modalRolEstudiante">
+    <div class="modal-content">
+        <span class="modal-close" onclick="cerrarModal('modalRolEstudiante')">&times;</span>
+        <h3>👨‍🎓 Acceso Estudiante</h3>
+        <p class="modal-sub">¿Ya estás matriculado en el diplomado?</p>
+        <button class="btn-primary btn-block" 
+                onclick="cerrarModal('modalRolEstudiante'); abrirModal('modalLogin')" 
+                style="margin-bottom:10px">
+            🎓 Ya tengo matrícula (Ingresar)
+        </button>
+        <button class="btn-hero btn-block" 
+                onclick="cerrarModal('modalRolEstudiante'); abrirModal('modalRegistro')">
+            ✍️ Soy nuevo (Matricularme)
+        </button>
+    </div>
+</div>
+
+<!-- ============================================
+     MODAL: REGISTRO / MATRÍCULA
+     ============================================ -->
 <div class="modal" id="modalRegistro">
     <div class="modal-content">
         <span class="modal-close" onclick="cerrarModal('modalRegistro')">&times;</span>
@@ -152,11 +277,14 @@
     </div>
 </div>
 
-<!-- ============ MODAL LOGIN ============ -->
+<!-- ============================================
+     MODAL: LOGIN ESTUDIANTE
+     ============================================ -->
 <div class="modal" id="modalLogin">
     <div class="modal-content">
         <span class="modal-close" onclick="cerrarModal('modalLogin')">&times;</span>
         <h3>Iniciar Sesión</h3>
+        <p class="modal-sub">Acceso para estudiantes matriculados</p>
         <form id="formLogin">
             <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
             <button type="submit" class="btn-primary btn-block">Entrar</button>
@@ -165,7 +293,52 @@
     </div>
 </div>
 
-<!-- ============ MODAL UNIDAD (GUÍA) ============ -->
+<!-- ============================================
+     MODAL: ACCESO STAFF (supervisor/admin)
+     ============================================ -->
+<div class="modal" id="modalStaff">
+    <div class="modal-content">
+        <span class="modal-close" onclick="cerrarModal('modalStaff')">&times;</span>
+        <h3>🔐 Acceso Staff UNES</h3>
+        <p class="modal-sub">Solo supervisores y administradores</p>
+        <form id="formStaff">
+            <input type="email" id="staffEmail" placeholder="Correo institucional" required>
+            <input type="password" id="staffPassword" placeholder="Contraseña" required>
+            <button type="submit" class="btn-primary btn-block">Ingresar</button>
+            <p class="hint">
+                Demo admin: <b>admin@unes.com.ve</b> / admin123<br>
+                Demo supervisor: <b>supervisor@unes.com.ve</b> / super123
+            </p>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================
+     MODAL: CREAR USUARIO (solo admin)
+     ============================================ -->
+<div class="modal" id="modalCrearUsuario">
+    <div class="modal-content">
+        <span class="modal-close" onclick="cerrarModal('modalCrearUsuario')">&times;</span>
+        <h3>Crear Usuario del Sistema</h3>
+        <p class="modal-sub">Solo administradores pueden crear supervisores y administradores</p>
+        <form id="formCrearUsuario">
+            <input type="text" id="nuNombre" placeholder="Nombre completo" required>
+            <input type="email" id="nuEmail" placeholder="Correo institucional" required>
+            <input type="text" id="nuCedula" placeholder="Cédula (opcional)">
+            <input type="password" id="nuPassword" placeholder="Contraseña" required>
+            <select id="nuRol" required>
+                <option value="">Selecciona rol</option>
+                <option value="supervisor">Supervisor</option>
+                <option value="administrador">Administrador</option>
+            </select>
+            <button type="submit" class="btn-primary btn-block">Crear Usuario</button>
+        </form>
+    </div>
+</div>
+
+<!-- ============================================
+     MODAL: DETALLE DE UNIDAD (guía)
+     ============================================ -->
 <div class="modal" id="modalUnidad">
     <div class="modal-content modal-xl">
         <span class="modal-close" onclick="cerrarModal('modalUnidad')">&times;</span>
@@ -173,7 +346,9 @@
     </div>
 </div>
 
-<!-- ============ MODAL EVALUACIÓN ============ -->
+<!-- ============================================
+     MODAL: EVALUACIÓN
+     ============================================ -->
 <div class="modal" id="modalEval">
     <div class="modal-content modal-lg">
         <span class="modal-close" onclick="cerrarModal('modalEval')">&times;</span>
@@ -181,7 +356,9 @@
     </div>
 </div>
 
-<!-- ============ MODAL CERTIFICADO ============ -->
+<!-- ============================================
+     MODAL: CERTIFICADO
+     ============================================ -->
 <div class="modal" id="modalCert">
     <div class="modal-content modal-cert">
         <span class="modal-close" onclick="cerrarModal('modalCert')">&times;</span>
@@ -189,8 +366,12 @@
     </div>
 </div>
 
+<!-- ============================================
+     SCRIPTS (orden importa)
+     ============================================ -->
 <script src="data.js"></script>
 <script src="supabase-client.js"></script>
 <script src="app.js"></script>
+
 </body>
 </html>
