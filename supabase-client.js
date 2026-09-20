@@ -4,7 +4,7 @@
 // ==========================================
 
 // ⚠️ REEMPLAZA ESTOS DOS VALORES CON LOS TUYOS DE SUPABASE:
-const SUPABASE_URL = 'https://qgpcseyuqiwobbeiqskj.supabase.co';
+const SUPABASE_URL = 'https://qgpcseyuqiwobbeiqskj.supabase.co;
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFncGNzZXl1cWl3b2JiZWlxc2tqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODk4NDk4NzAsImV4cCI6MjEwNTQyNTg3MH0.sbqnh9RsHLh6R2FA1qCb94GTY-CAA5HaW81aQalbDQ4;
 // ==========================================
 // CLIENTE DB
