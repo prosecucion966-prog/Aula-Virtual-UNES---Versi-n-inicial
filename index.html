@@ -47,22 +47,47 @@
          VISTA INICIO
          ============================================ -->
     <section id="view-inicio" class="view active">
-        <div class="hero">
-            <span class="hero-badge">Vigencia 2026 · Acuerdo N° 0000737</span>
-            <h2>Diplomado en Docencia Universitaria</h2>
-            <p>200 horas académicas · Modalidad Presencial · 9 unidades curriculares</p>
-            <div class="hero-acciones">
-                <button class="btn-hero" onclick="mostrarVista('unidades')">Ver unidades →</button>
-                <button class="btn-hero btn-hero-outline" id="btnRegistroHero">Matricularme</button>
+        <div class="hero hero-home">
+            <div class="hero-copy">
+                <span class="hero-kicker">Universidad Nacional Experimental de la Seguridad</span>
+                <span class="hero-badge">Vigencia 2026 · Acuerdo N° 0000737</span>
+                <h2>Formación para transformar la educación universitaria</h2>
+                <p>Bienvenido al Aula Virtual UNES. Fortalece tus competencias docentes con una experiencia académica organizada, accesible y centrada en el aprendizaje.</p>
+                <div class="hero-course-meta">
+                    <span><strong>Diplomado</strong> en Docencia Universitaria</span><span>200 horas académicas</span><span>Modalidad presencial</span><span>9 unidades curriculares</span>
+                </div>
+                <div class="hero-acciones">
+                    <button class="btn-hero" onclick="mostrarVista('unidades')">Explorar unidades <span aria-hidden="true">→</span></button>
+                    <button class="btn-hero btn-hero-outline" id="btnRegistroHero">Solicitar matrícula</button>
+                </div>
             </div>
+            <aside class="hero-panel" aria-label="Resumen del diplomado">
+                <div class="hero-panel-mark">UNES</div><span class="hero-panel-label">TU ESPACIO DE APRENDIZAJE</span>
+                <h3>Aprende. Enseña. Avanza.</h3>
+                <p>Accede a tus contenidos, actividades y seguimiento académico desde un mismo espacio.</p>
+                <div class="hero-panel-rule"></div>
+                <div class="hero-panel-stat"><strong>09</strong><span>unidades curriculares</span></div>
+                <div class="hero-panel-stat"><strong>200</strong><span>horas de formación</span></div>
+            </aside>
         </div>
-        <div class="stats">
-            <div class="stat-card"><span class="stat-num">9</span><span class="stat-label">Unidades</span></div>
-            <div class="stat-card"><span class="stat-num">200</span><span class="stat-label">Horas académicas</span></div>
-            <div class="stat-card"><span class="stat-num">18</span><span class="stat-label">Evaluaciones</span></div>
-            <div class="stat-card"><span class="stat-num">2</span><span class="stat-label">Intentos por eval</span></div>
-        </div>
-        <h3 class="section-title">Unidades destacadas</h3>
+        <section class="home-access" aria-labelledby="homeAccessTitle">
+            <div class="home-section-heading"><div><span class="eyebrow">INGRESA A TU ESPACIO</span><h3 id="homeAccessTitle">¿Cómo deseas ingresar?</h3></div><p>Selecciona tu perfil para continuar en el Aula Virtual.</p></div>
+            <div class="home-access-grid">
+                <button class="home-access-card" type="button" onclick="document.getElementById('btnEstudiante').click()"><span class="access-icon access-student">01</span><span class="access-copy"><strong>Estudiante</strong><small>Accede a tus unidades, evaluaciones y progreso.</small></span><span class="access-arrow">→</span></button>
+                <button class="home-access-card" type="button" onclick="document.getElementById('btnStaff').click()"><span class="access-icon access-teacher">02</span><span class="access-copy"><strong>Docente y supervisor</strong><small>Ingresa a las herramientas de gestión académica.</small></span><span class="access-arrow">→</span></button>
+                <button class="home-access-card" type="button" onclick="mostrarVista('unidades')"><span class="access-icon access-course">03</span><span class="access-copy"><strong>Explorar el diplomado</strong><small>Conoce las unidades y el contenido formativo.</small></span><span class="access-arrow">→</span></button>
+            </div>
+        </section>
+        <section class="home-stats" aria-label="Datos académicos del diplomado">
+            <div class="home-section-heading"><div><span class="eyebrow">RESUMEN ACADÉMICO</span><h3>Tu formación en cifras</h3></div></div>
+            <div class="stats">
+                <div class="stat-card"><span class="stat-num">09</span><span class="stat-label">Unidades curriculares</span></div>
+                <div class="stat-card"><span class="stat-num">200</span><span class="stat-label">Horas académicas</span></div>
+                <div class="stat-card"><span class="stat-num">18</span><span class="stat-label">Evaluaciones</span></div>
+                <div class="stat-card"><span class="stat-num">2</span><span class="stat-label">Intentos por evaluación</span></div>
+            </div>
+        </section>
+        <div class="home-featured-heading"><div><span class="eyebrow">CONTENIDO FORMATIVO</span><h3 class="section-title">Unidades destacadas</h3></div><button class="text-link" type="button" onclick="mostrarVista('unidades')">Ver todas las unidades →</button></div>
         <div class="grid" id="unidadesDestacadas"></div>
     </section>
 
