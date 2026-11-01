@@ -43,6 +43,10 @@ function configurarEventos() {
 
 // ============ NAVEGACIÓN ============
 function mostrarVista(nombre) {
+    if (nombre === 'clases' && !usuarioSistema) {
+        alert('⚠ Las clases en vivo están disponibles para docentes y personal autorizado.');
+        return;
+    }
     if (nombre === 'admin' && usuarioSistema?.rol !== 'administrador') {
         alert('⚠ Acceso restringido a administradores');
         return;

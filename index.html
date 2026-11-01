@@ -31,6 +31,7 @@
             <a data-view="progreso" id="navProgreso" style="display:none;">Mi Progreso</a>
             <a data-view="admin" id="navAdmin" style="display:none;">Panel Admin</a>
             <a data-view="supervisor" id="navSupervisor" style="display:none;">Panel Supervisor</a>
+            <a data-view="clases" id="navClases" style="display:none;">Clases en vivo</a>
             <a data-view="acerca">Acerca de</a>
         </nav>
         <div id="userArea">
@@ -46,22 +47,47 @@
          VISTA INICIO
          ============================================ -->
     <section id="view-inicio" class="view active">
-        <div class="hero">
-            <span class="hero-badge">Vigencia 2026 · Acuerdo N° 0000737</span>
-            <h2>Diplomado en Docencia Universitaria</h2>
-            <p>200 horas académicas · Modalidad Presencial · 9 unidades curriculares</p>
-            <div class="hero-acciones">
-                <button class="btn-hero" onclick="mostrarVista('unidades')">Ver unidades →</button>
-                <button class="btn-hero btn-hero-outline" id="btnRegistroHero">Matricularme</button>
+        <div class="hero hero-home">
+            <div class="hero-copy">
+                <span class="hero-kicker">Universidad Nacional Experimental de la Seguridad</span>
+                <span class="hero-badge">Vigencia 2026 · Acuerdo N° 0000737</span>
+                <h2>Formación para transformar la educación universitaria</h2>
+                <p>Bienvenido al Aula Virtual UNES. Fortalece tus competencias docentes con una experiencia académica organizada, accesible y centrada en el aprendizaje.</p>
+                <div class="hero-course-meta">
+                    <span><strong>Diplomado</strong> en Docencia Universitaria</span><span>200 horas académicas</span><span>Modalidad presencial</span><span>9 unidades curriculares</span>
+                </div>
+                <div class="hero-acciones">
+                    <button class="btn-hero" onclick="mostrarVista('unidades')">Explorar unidades <span aria-hidden="true">→</span></button>
+                    <button class="btn-hero btn-hero-outline" id="btnRegistroHero">Solicitar matrícula</button>
+                </div>
             </div>
+            <aside class="hero-panel" aria-label="Resumen del diplomado">
+                <div class="hero-panel-mark">UNES</div><span class="hero-panel-label">TU ESPACIO DE APRENDIZAJE</span>
+                <h3>Aprende. Enseña. Avanza.</h3>
+                <p>Accede a tus contenidos, actividades y seguimiento académico desde un mismo espacio.</p>
+                <div class="hero-panel-rule"></div>
+                <div class="hero-panel-stat"><strong>09</strong><span>unidades curriculares</span></div>
+                <div class="hero-panel-stat"><strong>200</strong><span>horas de formación</span></div>
+            </aside>
         </div>
-        <div class="stats">
-            <div class="stat-card"><span class="stat-num">9</span><span class="stat-label">Unidades</span></div>
-            <div class="stat-card"><span class="stat-num">200</span><span class="stat-label">Horas académicas</span></div>
-            <div class="stat-card"><span class="stat-num">18</span><span class="stat-label">Evaluaciones</span></div>
-            <div class="stat-card"><span class="stat-num">2</span><span class="stat-label">Intentos por eval</span></div>
-        </div>
-        <h3 class="section-title">Unidades destacadas</h3>
+        <section class="home-access" aria-labelledby="homeAccessTitle">
+            <div class="home-section-heading"><div><span class="eyebrow">INGRESA A TU ESPACIO</span><h3 id="homeAccessTitle">¿Cómo deseas ingresar?</h3></div><p>Selecciona tu perfil para continuar en el Aula Virtual.</p></div>
+            <div class="home-access-grid">
+                <button class="home-access-card" type="button" onclick="document.getElementById('btnEstudiante').click()"><span class="access-icon access-student">01</span><span class="access-copy"><strong>Estudiante</strong><small>Accede a tus unidades, evaluaciones y progreso.</small></span><span class="access-arrow">→</span></button>
+                <button class="home-access-card" type="button" onclick="document.getElementById('btnStaff').click()"><span class="access-icon access-teacher">02</span><span class="access-copy"><strong>Docente y supervisor</strong><small>Ingresa a las herramientas de gestión académica.</small></span><span class="access-arrow">→</span></button>
+                <button class="home-access-card" type="button" onclick="mostrarVista('unidades')"><span class="access-icon access-course">03</span><span class="access-copy"><strong>Explorar el diplomado</strong><small>Conoce las unidades y el contenido formativo.</small></span><span class="access-arrow">→</span></button>
+            </div>
+        </section>
+        <section class="home-stats" aria-label="Datos académicos del diplomado">
+            <div class="home-section-heading"><div><span class="eyebrow">RESUMEN ACADÉMICO</span><h3>Tu formación en cifras</h3></div></div>
+            <div class="stats">
+                <div class="stat-card"><span class="stat-num">09</span><span class="stat-label">Unidades curriculares</span></div>
+                <div class="stat-card"><span class="stat-num">200</span><span class="stat-label">Horas académicas</span></div>
+                <div class="stat-card"><span class="stat-num">18</span><span class="stat-label">Evaluaciones</span></div>
+                <div class="stat-card"><span class="stat-num">2</span><span class="stat-label">Intentos por evaluación</span></div>
+            </div>
+        </section>
+        <div class="home-featured-heading"><div><span class="eyebrow">CONTENIDO FORMATIVO</span><h3 class="section-title">Unidades destacadas</h3></div><button class="text-link" type="button" onclick="mostrarVista('unidades')">Ver todas las unidades →</button></div>
         <div class="grid" id="unidadesDestacadas"></div>
     </section>
 
@@ -174,6 +200,57 @@
                 </thead>
                 <tbody id="tablaEstudiantesSupervisor"></tbody>
             </table>
+        </div>
+    </section>
+
+ 
+    <!-- ============================================
+         VISTA CLASES EN VIVO · ZOOM
+         ============================================ -->
+    <section id="view-clases" class="view">
+        <div class="view-header">
+            <div>
+                <span class="hero-badge" style="background:#eef3f8;color:#102d55;border-color:#d8b45a;">AULA VIRTUAL · ENCUENTROS SINCRÓNICOS</span>
+                <h2>Clases en vivo</h2>
+                <p class="modal-sub">Programa encuentros académicos y comparte el acceso con tus estudiantes.</p>
+            </div>
+            <button class="btn-primary" id="btnNuevaClase">＋ Programar clase</button>
+        </div>
+        <div class="zoom-layout">
+            <div class="zoom-intro">
+                <div class="zoom-mark">Z</div>
+                <div>
+                    <h3>Conecta tu aula con Zoom</h3>
+                    <p>Organiza sesiones virtuales, registra el enlace de acceso y mantenlo disponible para los participantes.</p>
+                </div>
+            </div>
+            <div id="zoomClassFormWrap" class="progreso-card" style="display:none;">
+                <h3>Programar una clase</h3>
+                <p class="modal-sub">Completa los datos. Se abrirá Zoom para crear la reunión y luego podrás guardar aquí el enlace generado.</p>
+                <form id="formZoomClase" class="zoom-form">
+                    <label>Nombre de la clase<input id="zoomTitulo" required maxlength="120" placeholder="Ej. Introducción a la unidad curricular"></label>
+                    <label>Unidad o programa<input id="zoomUnidad" maxlength="120" placeholder="Ej. Unidad I · Fundamentos"></label>
+                    <div class="zoom-form-row">
+                        <label>Fecha<input id="zoomFecha" type="date" required></label>
+                        <label>Hora<input id="zoomHora" type="time" required></label>
+                        <label>Duración
+                            <select id="zoomDuracion"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>60 minutos</option><option value="90">90 minutos</option><option value="120">120 minutos</option></select>
+                        </label>
+                    </div>
+                    <label>Descripción<textarea id="zoomDescripcion" rows="3" maxlength="500" placeholder="Objetivo y detalles de la sesión"></textarea></label>
+                    <div class="zoom-form-actions">
+                        <button type="button" class="btn-primary" id="btnAbrirZoom">Abrir Zoom para crear reunión ↗</button>
+                        <button type="submit" class="btn-hero">Guardar clase y enlace</button>
+                        <button type="button" class="btn-user zoom-cancel" id="btnCancelarClase">Cancelar</button>
+                    </div>
+                    <label>Enlace de invitación de Zoom<input id="zoomJoinUrl" type="url" placeholder="https://zoom.us/j/..." required></label>
+                    <p class="hint">Después de crear la reunión en Zoom, copia aquí el enlace de invitación. Esta versión guarda las clases en este navegador; la sincronización multiusuario se habilitará con la API y la base de datos.</p>
+                </form>
+            </div>
+            <div class="progreso-card">
+                <div class="view-header"><h3>Próximas clases</h3><span class="badge badge-fase" id="zoomClassCount">0 clases</span></div>
+                <div id="zoomClassList" class="zoom-class-list"><div class="zoom-empty">Aún no hay clases programadas.</div></div>
+            </div>
         </div>
     </section>
 
@@ -372,6 +449,7 @@
 <script src="data.js"></script>
 <script src="supabase-client.js"></script>
 <script src="app.js"></script>
+<script src="zoom-classes.js"></script>
 
 </body>
 </html>
