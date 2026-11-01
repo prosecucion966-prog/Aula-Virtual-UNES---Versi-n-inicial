@@ -362,32 +362,12 @@
     <div class="modal-content">
         <span class="modal-close" onclick="cerrarModal('modalLogin')">&times;</span>
         <h3>Iniciar Sesión</h3>
-        <p class="modal-sub">Acceso para estudiantes matriculados</p>
+        <p class="modal-sub">Acceso para estudiantes y personal UNES</p>
         <form id="formLogin">
             <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="username" required>
             <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password" required>
             <button type="submit" class="btn-primary btn-block">Entrar</button>
-            <p class="hint">Ingresa con tu correo y contraseña de acceso.</p>
-        </form>
-    </div>
-</div>
-
-<!-- ============================================
-     MODAL: ACCESO STAFF (supervisor/admin)
-     ============================================ -->
-<div class="modal" id="modalStaff">
-    <div class="modal-content">
-        <span class="modal-close" onclick="cerrarModal('modalStaff')">&times;</span>
-        <h3>🔐 Acceso Staff UNES</h3>
-        <p class="modal-sub">Acceso para docentes y administradores</p>
-        <form id="formStaff">
-            <input type="email" id="staffEmail" placeholder="Correo institucional" required>
-            <input type="password" id="staffPassword" placeholder="Contraseña" required>
-            <button type="submit" class="btn-primary btn-block">Ingresar</button>
-            <p class="hint">
-                Demo admin: <b>admin@unes.com.ve</b> / admin123<br>
-                Demo supervisor: <b>supervisor@unes.com.ve</b> / super123
-            </p>
+            <p class="hint">Ingresa con tu correo y contraseña. El sistema identifica automáticamente tu perfil.</p>
         </form>
     </div>
 </div>
