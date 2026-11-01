@@ -143,14 +143,7 @@ module.exports = async (req, res) => {
       if (!student.rowCount) return send(res,404,{error:'Estudiante no encontrado.'});
       const cols=['estudiante_id','unidad',...keys,'completado'];
       const vals=[student.rows[0].id,unit,...keys.map(k=>values[k]),Boolean(values.aprobada)];
-      const placeholders=vals.map((_,i)=>'
-  } catch (error) {
-    console.error('API error:', error.message);
-    if (error.code === '23505') return send(res, 409, { error: 'El correo ya existe.' });
-    return send(res, 500, { error: 'Error interno del servidor.' });
-  }
-};
-+(i+1));
+      const placeholders=vals.map((_,i)=>'$'+(i+1));
       const updates=keys.map(k=>k+'=EXCLUDED.'+k).concat(['completado=EXCLUDED.completado','actualizado_en=now()']);
       const sql='INSERT INTO progreso('+cols.join(',')+') VALUES('+placeholders.join(',')+') ON CONFLICT(estudiante_id,unidad) DO UPDATE SET '+updates.join(',')+' RETURNING id,estudiante_id,unidad AS unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,actualizado_en';
       const saved=await db().query(sql,vals);
