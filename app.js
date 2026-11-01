@@ -225,19 +225,27 @@ async function registrarEstudiante(e) {
 async function loginEstudiante(e) {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-    const est = await DB.buscarEstudiante(email);
-    if (!est) {
-        alert('❌ No estás matriculado. Regístrate primero.');
+    if (!email) {
+        alert('Escribe el correo con el que te matriculaste.');
         return;
     }
-    estudianteActual = est;
-    usuarioSistema = null;
-    localStorage.setItem('unes_email', email);
-    localStorage.removeItem('staff_email');
-    cerrarModal('modalLogin');
-    actualizarUIRol();
-    await recargarProgreso();
-    alert('👋 ¡Bienvenido/a de nuevo, ' + est.nombre_completo + '!');
+    try {
+        const est = await DB.buscarEstudiante(email);
+        if (!est) {
+            alert('❌ No aparece una matrícula con ese correo. Verifica el correo o solicita al administrador que revise tu inscripción.');
+            return;
+        }
+        estudianteActual = est;
+        usuarioSistema = null;
+        localStorage.setItem('unes_email', email);
+        localStorage.removeItem('staff_email');
+        cerrarModal('modalLogin');
+        actualizarUIRol();
+        await recargarProgreso();
+        alert('👋 ¡Bienvenido/a de nuevo, ' + (est.nombre_completo || email) + '!');
+    } catch (err) {
+        alert('❌ No se pudo iniciar sesión: ' + err.message);
+    }
 }
 
 // ============ LOGIN STAFF ============
