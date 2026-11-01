@@ -1457,3 +1457,28 @@ main { padding-top: 38px; }
     transition-duration: .01ms !important;
   }
 }
+
+
+/* CLASES EN VIVO · ZOOM */
+.zoom-layout { display:grid; gap:22px; max-width:980px; margin:0 auto; }
+.zoom-intro { display:flex; align-items:center; gap:18px; padding:24px; border-radius:18px; color:#fff; background:linear-gradient(115deg,#091d38,#173e6b); border-bottom:3px solid #d8b45a; }
+.zoom-intro h3 { color:#fff; margin-bottom:5px; }
+.zoom-intro p { color:rgba(255,255,255,.8); font-size:14px; }
+.zoom-mark { display:grid; place-items:center; width:56px; height:56px; flex:0 0 56px; border-radius:16px; background:#fff; color:#2d8cff; font-size:30px; font-weight:900; }
+.zoom-form { display:grid; gap:14px; }
+.zoom-form label { display:grid; gap:7px; color:#33465e; font-size:13px; font-weight:700; }
+.zoom-form input,.zoom-form select,.zoom-form textarea { width:100%; padding:12px 14px; border:1px solid #dce4ee; border-radius:10px; background:#f8fafc; color:#1b2b40; font:inherit; }
+.zoom-form input:focus,.zoom-form select:focus,.zoom-form textarea:focus { outline:0; border-color:#285486; box-shadow:0 0 0 3px rgba(40,84,134,.12); }
+.zoom-form-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; }
+.zoom-form-actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+.zoom-form-actions button { min-height:42px; }
+.zoom-cancel { background:#64748b; border:0; }
+.zoom-class-list { display:grid; gap:12px; }
+.zoom-class-item { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:18px; border:1px solid #e1e7ef; border-radius:14px; background:#fff; }
+.zoom-class-item h4 { color:#102d55; margin-bottom:5px; }
+.zoom-class-item p { color:#66758a; font-size:13px; }
+.zoom-class-actions { display:flex; flex-wrap:wrap; gap:8px; }
+.zoom-class-actions a,.zoom-class-actions button { display:inline-flex; align-items:center; padding:9px 13px; border-radius:9px; text-decoration:none; font-weight:700; font-size:12px; border:0; cursor:pointer; }
+.zoom-join { background:#2d8cff; color:#fff; }
+.zoom-empty { text-align:center; padding:30px; color:#66758a; border:1px dashed #cbd5e1; border-radius:12px; }
+@media(max-width:650px) { .zoom-form-row { grid-template-columns:1fr; } .zoom-class-item { align-items:flex-start; flex-direction:column; } .zoom-form-actions { flex-direction:column; align-items:stretch; } }
