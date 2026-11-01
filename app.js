@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     renderizarUnidades();
     renderizarDestacadas();
     configurarEventos();
-    await restaurarSesiones();
+    await window.restaurarSesiones();
 });
 
 function configurarEventos() {
@@ -31,10 +31,10 @@ function configurarEventos() {
     document.getElementById('btnEstudiante')?.addEventListener('click', () => abrirModal('modalRolEstudiante'));
     document.getElementById('btnStaff')?.addEventListener('click', () => abrirModal('modalStaff'));
     document.getElementById('btnRegistroHero')?.addEventListener('click', () => abrirModal('modalRolEstudiante'));
-    document.getElementById('formRegistro')?.addEventListener('submit', registrarEstudiante);
-    document.getElementById('formLogin')?.addEventListener('submit', loginEstudiante);
-    document.getElementById('formStaff')?.addEventListener('submit', loginStaff);
-    document.getElementById('formCrearUsuario')?.addEventListener('submit', crearUsuarioSistema);
+    document.getElementById('formRegistro')?.addEventListener('submit', e => window.registrarEstudiante(e));
+    document.getElementById('formLogin')?.addEventListener('submit', e => window.loginEstudiante(e));
+    document.getElementById('formStaff')?.addEventListener('submit', e => window.loginStaff(e));
+    document.getElementById('formCrearUsuario')?.addEventListener('submit', e => window.crearUsuarioSistema(e));
     document.getElementById('btnCertificado')?.addEventListener('click', mostrarCertificado);
     document.querySelectorAll('.modal').forEach(m => {
         m.addEventListener('click', e => { if (e.target === m) m.classList.remove('active'); });
@@ -51,7 +51,7 @@ function mostrarVista(nombre) {
         alert('⚠ Acceso restringido a administradores');
         return;
     }
-    if (nombre === 'supervisor' && usuarioSistema?.rol !== 'supervisor') {
+    if (nombre === 'supervisor' && usuarioSistema?.rol !== 'docente') {
         alert('⚠ Acceso restringido a supervisores');
         return;
     }
@@ -83,13 +83,10 @@ async function restaurarSesiones() {
 
     if (staffEmail) {
         try {
-            const res = await fetch(
-                `${SUPABASE_URL}/rest/v1/usuarios_sistema?email=eq.${encodeURIComponent(staffEmail)}`,
-                { headers: DB.headers }
-            );
+            const res = await fetch('/api/auth/me', { credentials: 'same-origin' });
             const data = await res.json();
-            if (data[0]?.activo) {
-                usuarioSistema = data[0];
+            if (res.ok && data.user && data.user.rol !== 'estudiante') {
+                usuarioSistema = data.user;
                 actualizarUIRol();
                 await mostrarPanelSegunRol();
                 return;
@@ -270,7 +267,7 @@ async function mostrarPanelSegunRol() {
     if (usuarioSistema.rol === 'administrador') {
         mostrarVista('admin');
         await cargarPanelAdmin();
-    } else if (usuarioSistema.rol === 'supervisor') {
+    } else if (usuarioSistema.rol === 'docente') {
         mostrarVista('supervisor');
         await cargarPanelSupervisor();
     }
@@ -294,7 +291,7 @@ function actualizarUIRol() {
             <button class="btn-primary" onclick="cerrarSesion()" style="margin-left:8px">Salir</button>
         `;
         if (usuarioSistema.rol === 'administrador') navAdmin.style.display = 'inline-block';
-        if (usuarioSistema.rol === 'supervisor') navSup.style.display = 'inline-block';
+        if (usuarioSistema.rol === 'docente') navSup.style.display = 'inline-block';
     } else if (estudianteActual) {
         const nombre = estudianteActual.nombre_completo.split(' ')[0];
         navProg.style.display = 'inline-block';
@@ -646,13 +643,13 @@ async function cargarPanelAdmin() {
         DB.listarUsuariosSistema(),
         DB.listarTodosEstudiantes(),
         DB.listarTodosCertificados(),
-        fetch(`${SUPABASE_URL}/rest/v1/progreso`, { headers: DB.headers }).then(r => r.json())
+        DB.listarTodosProgresos()
     ]);
     document.getElementById('admTotalEst').textContent = estudiantes.length;
-    document.getElementById('admTotalSup').textContent = usuarios.filter(u => u.rol === 'supervisor').length;
+    document.getElementById('admTotalSup').textContent = usuarios.filter(u => u.rol === 'docente').length;
     document.getElementById('admTotalCert').textContent = certificados.length;
     const aprobados = estudiantes.filter(est => {
-        const suyos = todosProgresos.filter(p => p.estudiante_email === est.email && p.aprobada);
+        const suyos = todosProgresos.filter(p => Number(p.estudiante_id) === Number(est.id) && p.aprobada);
         return suyos.length === 9;
     }).length;
     document.getElementById('admTotalAprob').textContent = aprobados;
@@ -671,7 +668,7 @@ async function cargarPanelAdmin() {
         </tr>
     `).join('') || '<tr><td colspan="5" style="text-align:center;color:#64748b;">Sin usuarios</td></tr>';
     document.getElementById('tablaEstudiantesAdmin').innerHTML = estudiantes.map(est => {
-        const suyos = todosProgresos.filter(p => p.estudiante_email === est.email);
+        const suyos = todosProgresos.filter(p => Number(p.estudiante_id) === Number(est.id));
         const aprobadas = suyos.filter(p => p.aprobada).length;
         return `
             <tr>
