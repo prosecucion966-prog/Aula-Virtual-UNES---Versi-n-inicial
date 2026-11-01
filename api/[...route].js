@@ -26,7 +26,8 @@ async function auth(req) {
   if (!token) return null;
   try {
     const claims = jwt.verify(token, process.env.JWT_SECRET, { issuer: 'aula-virtual-unes' });
-    const result = claims.role === 'estudiante'\n      ? await db().query('SELECT id,nombre_completo AS nombre,email,\'estudiante\'::text AS rol,activo FROM estudiantes WHERE id=$1 AND activo IS DISTINCT FROM false', [claims.sub])\n      : await db().query('SELECT id,nombre_completo AS nombre,email,rol,activo FROM usuarios_sistema WHERE id=$1 AND activo IS DISTINCT FROM false', [claims.sub]);
+    const result = claims.role === 'estudiante'
+      ? await db().query('SELECT id,nombre_completo AS nombre,email,\'estudiante\'::text AS rol,activo FROM estudiantes WHERE id=$1 AND activo IS DISTINCT FROM false', [claims.sub])\n      : await db().query('SELECT id,nombre_completo AS nombre,email,rol,activo FROM usuarios_sistema WHERE id=$1 AND activo IS DISTINCT FROM false', [claims.sub]);
     return result.rows[0] || null;
   } catch (_) { return null; }
 }
@@ -42,7 +43,8 @@ module.exports = async (req, res) => {
       return send(res, 200, { ok: true, database: 'connected' });
     }
     if (route === 'auth/register-student' && req.method === 'POST') {
-      const { nombre, email, password, cedula } = req.body || {};
+      const { nombre, nombre_completo, email, password, cedula } = req.body || {};
+      const fullName = String(nombre_completo || nombre || '').trim();
       const normalized = String(email || '').trim().toLowerCase();
       if (!nombre || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized) || typeof password !== 'string' || password.length < 10) return send(res, 400, { error: 'Indica nombre, correo válido y contraseña de al menos 10 caracteres.' });
       const client = await db().connect();
@@ -51,8 +53,8 @@ module.exports = async (req, res) => {
         const exists = await client.query('SELECT 1 FROM usuarios_sistema WHERE lower(email)= $1 UNION SELECT 1 FROM estudiantes WHERE lower(email)=$1', [normalized]);
         if (exists.rowCount) { await client.query('ROLLBACK'); return send(res, 409, { error: 'Ese correo ya está registrado.' }); }
         const hash = await bcrypt.hash(password, 12);
-        const student = await client.query('INSERT INTO estudiantes(nombre_completo,email,cedula,password_hash,activo) VALUES($1,$2,$3,$4,true) RETURNING id,nombre_completo,email,cedula,activo', [String(nombre).trim(), normalized, cedula || null, hash]);
-        const account = await client.query("INSERT INTO usuarios_sistema(nombre,email,password_hash,rol,activo) VALUES($1,$2,$3,'estudiante',true) RETURNING id,nombre_completo AS nombre,email,rol,activo", [String(nombre).trim(), normalized, hash]);
+        const student = await client.query('INSERT INTO estudiantes(nombre_completo,email,cedula,password_hash,activo) VALUES($1,$2,$3,$4,true) RETURNING id,nombre_completo,email,cedula,activo', [fullName, normalized, cedula || null, hash]);
+        const account = { rows: [{ id: student.rows[0].id, nombre: student.rows[0].nombre_completo, email: normalized, rol: 'estudiante', activo: true }] };
         await client.query('COMMIT');
         setSession(res, account.rows[0]);
         return send(res, 201, { user: publicUser(account.rows[0]), estudiante: student.rows[0] });
@@ -62,22 +64,24 @@ module.exports = async (req, res) => {
       if (!process.env.BOOTSTRAP_SECRET || req.headers['x-bootstrap-secret'] !== process.env.BOOTSTRAP_SECRET) return send(res, 403, { error: 'No autorizado.' });
       const count = await db().query("SELECT count(*)::int AS total FROM usuarios_sistema WHERE rol='administrador'");
       if (count.rows[0].total > 0) return send(res, 409, { error: 'Ya existe una cuenta administradora. Desactiva BOOTSTRAP_SECRET.' });
-      const { nombre, email, password } = req.body || {};
+      const { nombre, nombre_completo, email, password } = req.body || {};
+      const fullName = String(nombre_completo || nombre || '').trim();
       const normalized = String(email || '').trim().toLowerCase();
       if (!nombre || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized) || typeof password !== 'string' || password.length < 12) return send(res, 400, { error: 'Datos inválidos. La contraseña debe tener al menos 12 caracteres.' });
       const hash = await bcrypt.hash(password, 12);
-      const created = await db().query("INSERT INTO usuarios_sistema(nombre,email,password_hash,rol,activo) VALUES($1,$2,$3,'administrador',true) RETURNING id,nombre_completo AS nombre,email,rol,activo", [String(nombre).trim(), normalized, hash]);
+      const created = await db().query("INSERT INTO usuarios_sistema(nombre_completo,email,password_hash,rol,activo) VALUES($1,$2,$3,'administrador',true) RETURNING id,nombre_completo AS nombre,email,rol,activo", [fullName, normalized, hash]);
       return send(res, 201, { user: publicUser(created.rows[0]), warning: 'Retira BOOTSTRAP_SECRET de Vercel inmediatamente.' });
     }
     if (route === 'auth/login' && req.method === 'POST') {
       const email = String(req.body?.email || '').trim().toLowerCase();
       const password = req.body?.password;
       if (!email || typeof password !== 'string') return send(res, 400, { error: 'Correo y contraseña son obligatorios.' });
-      const result = await db().query('SELECT id,nombre_completo AS nombre,email,password_hash,rol,activo FROM usuarios_sistema WHERE lower(email)=$1 LIMIT 1', [email]);
-      const user = result.rows[0];
+      const staffResult = await db().query('SELECT id,nombre_completo AS nombre,email,password_hash,rol,activo FROM usuarios_sistema WHERE lower(email)=$1 LIMIT 1', [email]);
+      const studentResult = staffResult.rowCount ? { rows: [] } : await db().query("SELECT id,nombre_completo AS nombre,email,password_hash,'estudiante'::text AS rol,activo FROM estudiantes WHERE lower(email)=$1 LIMIT 1", [email]);
+      const user = staffResult.rows[0] || studentResult.rows[0];
       if (!user || user.activo === false || !(await bcrypt.compare(password, user.password_hash))) return send(res, 401, { error: 'Correo o contraseña incorrectos.' });
       setSession(res, user);
-      if (user.rol !== 'estudiante') await db().query('INSERT INTO log_actividad(usuario_sistema_id,actividad') VALUES($1,$2)', [user.id, 'Inicio de sesión']);
+      if (user.rol !== 'estudiante') await db().query('INSERT INTO log_actividad(usuario_sistema_id,actividad) VALUES($1,$2), [user.id, 'Inicio de sesión']);
       return send(res, 200, { user: publicUser(user) });
     }
     if (route === 'auth/logout' && req.method === 'POST') { clearSession(res); return send(res, 200, { ok: true }); }
@@ -104,7 +108,7 @@ module.exports = async (req, res) => {
       const normalized = String(email || '').trim().toLowerCase();
       if (!nombre || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized) || typeof password !== 'string' || password.length < 10 || !['administrador','supervisor'].includes(rol)) return send(res, 400, { error: 'Datos inválidos. La contraseña debe tener al menos 10 caracteres.' });
       const hash = await bcrypt.hash(password, 12);
-      const created = await db().query('INSERT INTO usuarios_sistema(nombre,email,password_hash,rol,activo) VALUES($1,$2,$3,$4,true) RETURNING id,nombre_completo,email,rol,activo', [String(nombre).trim(), normalized, hash, rol]);
+      const created = await db().query('INSERT INTO usuarios_sistema(nombre_completo,email,password_hash,rol,activo) VALUES($1,$2,$3,$4,true) RETURNING id,nombre_completo,email,rol,activo', [String(nombre_completo || nombre || '').trim(), normalized, hash, rol]);
       await db().query('INSERT INTO log_actividad(usuario_sistema_id,actividad) VALUES($1,$2)', [user.id, 'Creó cuenta: ' + normalized]);
       return send(res, 201, created.rows[0]);
     }
@@ -117,7 +121,7 @@ module.exports = async (req, res) => {
       if (user.rol === 'estudiante') {
         const student = await db().query('SELECT id FROM estudiantes WHERE lower(email)=lower($1)', [user.email]);
         if (!student.rowCount) return send(res, 200, []);
-        const rows = await db().query('SELECT id,estudiante_id,unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,updated_at FROM progreso WHERE estudiante_id=$1 ORDER BY unidad', [student.rows[0].id]);
+        const rows = await db().query('SELECT id,estudiante_id,unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,updated_at FROM progreso WHERE estudiante_id=$1 ORDER BY unidad_id', [student.rows[0].id]);
         return send(res, 200, rows.rows);
       }
       if (!['administrador','supervisor'].includes(user.rol)) return send(res, 403, { error: 'Sin permisos.' });
@@ -154,7 +158,7 @@ module.exports = async (req, res) => {
       const email=String(req.body?.email||'').trim().toLowerCase(), activo=Boolean(req.body?.activo);
       const changed=await db().query('UPDATE usuarios_sistema SET activo=$1 WHERE lower(email)=lower($2) AND id<>$3 RETURNING id,email,activo',[activo,email,user.id]);
       if(!changed.rowCount) return send(res,404,{error:'Usuario no encontrado o no modificable.'});
-      await db().query('INSERT INTO log_actividad(usuario_id,actividad) VALUES($1,$2)',[user.id,(activo?'Activó ':'Desactivó ')+email]);
+      await db().query('INSERT INTO log_actividad(usuario_sistema_id,actividad) VALUES($1,$2)',[user.id,(activo?'Activó ':'Desactivó ')+email]);
       return send(res,200,changed.rows[0]);
     }
     if (route === 'certificates' && req.method === 'GET') {
