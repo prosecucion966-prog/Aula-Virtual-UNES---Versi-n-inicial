@@ -29,11 +29,10 @@ function configurarEventos() {
         });
     });
     document.getElementById('btnEstudiante')?.addEventListener('click', () => abrirModal('modalRolEstudiante'));
-    document.getElementById('btnStaff')?.addEventListener('click', () => abrirModal('modalStaff'));
+    document.getElementById('btnStaff')?.addEventListener('click', () => abrirModal('modalLogin'));
     document.getElementById('btnRegistroHero')?.addEventListener('click', () => abrirModal('modalRolEstudiante'));
     document.getElementById('formRegistro')?.addEventListener('submit', e => window.registrarEstudiante(e));
     document.getElementById('formLogin')?.addEventListener('submit', e => window.loginEstudiante(e));
-    document.getElementById('formStaff')?.addEventListener('submit', e => window.loginStaff(e));
     document.getElementById('formCrearUsuario')?.addEventListener('submit', e => window.crearUsuarioSistema(e));
     document.getElementById('btnCertificado')?.addEventListener('click', mostrarCertificado);
     document.querySelectorAll('.modal').forEach(m => {
