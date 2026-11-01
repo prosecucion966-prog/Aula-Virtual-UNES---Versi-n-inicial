@@ -51,7 +51,7 @@ function mostrarVista(nombre) {
         alert('⚠ Acceso restringido a administradores');
         return;
     }
-    if (nombre === 'supervisor' && usuarioSistema?.rol !== 'docente') {
+    if (nombre === 'supervisor' && usuarioSistema?.rol !== 'supervisor') {
         alert('⚠ Acceso restringido a supervisores');
         return;
     }
@@ -267,7 +267,7 @@ async function mostrarPanelSegunRol() {
     if (usuarioSistema.rol === 'administrador') {
         mostrarVista('admin');
         await cargarPanelAdmin();
-    } else if (usuarioSistema.rol === 'docente') {
+    } else if (usuarioSistema.rol === 'supervisor') {
         mostrarVista('supervisor');
         await cargarPanelSupervisor();
     }
@@ -291,7 +291,7 @@ function actualizarUIRol() {
             <button class="btn-primary" onclick="cerrarSesion()" style="margin-left:8px">Salir</button>
         `;
         if (usuarioSistema.rol === 'administrador') navAdmin.style.display = 'inline-block';
-        if (usuarioSistema.rol === 'docente') navSup.style.display = 'inline-block';
+        if (usuarioSistema.rol === 'supervisor') navSup.style.display = 'inline-block';
     } else if (estudianteActual) {
         const nombre = estudianteActual.nombre_completo.split(' ')[0];
         navProg.style.display = 'inline-block';
