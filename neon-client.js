@@ -1,159 +1,23 @@
-// Adaptador de autenticación para el backend Neon. Se carga después de app.js.
+// Cliente de la API segura de Neon. app.js se carga antes que este archivo.
 (function () {
-  const api = async (path, options = {}) => {
-    const response = await fetch('/api/' + path, {
-      method: options.method || 'GET',
-      credentials: 'same-origin',
-      headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
-      body: options.body ? JSON.stringify(options.body) : undefined
-    });
-    const payload = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(payload.error || 'No se pudo completar la solicitud.');
-    return payload;
-  };
-
-  window.NeonAPI = api;
-  DB.loginUsuarioSistema = async (email, password) => {
-    const result = await api('auth/login', { method: 'POST', body: { email, password } });
-    return result.user;
-  };
-  DB.buscarEstudiante = async email => {
-    const session = await api('auth/me');
-    if (session.user.rol !== 'estudiante' || session.user.email.toLowerCase() !== email.toLowerCase()) return null;
-    return session.estudiante;
-  };
-  DB.registrarEstudiante = async datos => {
-    return api('auth/register-student', { method: 'POST', body: {
-      nombre: datos.nombre_completo,
-      email: datos.email,
-      cedula: datos.cedula,
-      password: datos.password
-    }});
-  };
-  DB.listarUsuariosSistema = () => api('admin/users');
-  DB.crearUsuarioSistema = datos => api('admin/users', { method: 'POST', body: {
-    nombre: datos.nombre_completo, email: datos.email, password: datos.password_hash, rol: datos.rol
-  }});
-  DB.listarTodosEstudiantes = () => api('students');
-  DB.obtenerProgreso = async () => api('progress');
-  DB.listarProgresoDeEstudiante = async () => api('progress');
-  DB.registrarLog = async () => {};
-
-  window.registrarEstudiante = async function (event) {
-    event.preventDefault();
-    const datos = {
-      nombre_completo: document.getElementById('regNombre').value.trim(),
-      email: document.getElementById('regEmail').value.trim().toLowerCase(),
-      cedula: document.getElementById('regCedula').value.trim(),
-      password: document.getElementById('regPassword').value
-    };
-    try {
-      const result = await DB.registrarEstudiante(datos);
-      estudianteActual = { ...result.estudiante, nombre_completo: result.estudiante.nombre };
-      usuarioSistema = null;
-      localStorage.setItem('unes_email', datos.email);
-      localStorage.removeItem('staff_email');
-      cerrarModal('modalRegistro');
-      actualizarUIRol();
-      await recargarProgreso();
-      alert('Matrícula y cuenta creadas correctamente.');
-      event.target.reset();
-    } catch (error) { alert(error.message); }
-  };
-
-  window.loginEstudiante = async function (event) {
-    event.preventDefault();
-    const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-    const password = document.getElementById('loginPassword').value;
-    try {
-      const result = await api('auth/login', { method: 'POST', body: { email, password } });
-      if (result.user.rol !== 'estudiante') {
-        await api('auth/logout', { method: 'POST' });
-        throw new Error('Esta cuenta no corresponde al perfil de estudiante.');
-      }
-      const session = await api('auth/me');
-      estudianteActual = session.estudiante;
-      usuarioSistema = null;
-      localStorage.setItem('unes_email', email);
-      localStorage.removeItem('staff_email');
-      cerrarModal('modalLogin');
-      actualizarUIRol();
-      await recargarProgreso();
-    } catch (error) { alert(error.message); }
-  };
-
-  window.loginStaff = async function (event) {
-    event.preventDefault();
-    const email = document.getElementById('staffEmail').value.trim().toLowerCase();
-    const password = document.getElementById('staffPassword').value;
-    try {
-      const result = await api('auth/login', { method: 'POST', body: { email, password } });
-      if (!['docente', 'administrador'].includes(result.user.rol)) {
-        await api('auth/logout', { method: 'POST' });
-        throw new Error('Esta cuenta no tiene permisos de personal.');
-      }
-      usuarioSistema = result.user;
-      estudianteActual = null;
-      localStorage.removeItem('unes_email');
-      localStorage.setItem('staff_email', email);
-      cerrarModal('modalStaff');
-      actualizarUIRol();
-      await mostrarPanelSegunRol();
-    } catch (error) { alert(error.message); }
-  };
-
-  window.crearUsuarioSistema = async function (event) {
-    event.preventDefault();
-    const datos = {
-      nombre_completo: document.getElementById('nuNombre').value.trim(),
-      email: document.getElementById('nuEmail').value.trim().toLowerCase(),
-      password_hash: document.getElementById('nuPassword').value,
-      rol: document.getElementById('nuRol').value
-    };
-    try {
-      await DB.crearUsuarioSistema(datos);
-      alert('Cuenta creada correctamente.');
-      cerrarModal('modalCrearUsuario');
-      event.target.reset();
-      await cargarPanelAdmin();
-    } catch (error) { alert(error.message); }
-  };
-
-  window.mostrarPanelSegunRol = async function () {
-    if (!usuarioSistema) return;
-    if (usuarioSistema.rol === 'administrador') {
-      mostrarVista('admin');
-      await cargarPanelAdmin();
-    } else if (usuarioSistema.rol === 'docente') {
-      mostrarVista('supervisor');
-      await cargarPanelSupervisor();
-    }
-  };
-
-  window.restaurarSesiones = async function () {
-    try {
-      const session = await api('auth/me');
-      if (session.user.rol === 'estudiante') {
-        estudianteActual = session.estudiante;
-        usuarioSistema = null;
-        actualizarUIRol();
-        await recargarProgreso();
-      } else {
-        usuarioSistema = session.user;
-        estudianteActual = null;
-        actualizarUIRol();
-        await mostrarPanelSegunRol();
-      }
-    } catch (_) {
-      localStorage.removeItem('unes_email');
-      localStorage.removeItem('staff_email');
-    }
-  };
-
-  window.cerrarSesion = async function () {
-    try { await api('auth/logout', { method: 'POST' }); } catch (_) {}
-    localStorage.removeItem('unes_email');
-    localStorage.removeItem('staff_email');
-    location.reload();
-  };
+ const api=async(path,options={})=>{const r=await fetch('/api/'+path,{method:options.method||'GET',credentials:'same-origin',headers:{'Content-Type':'application/json',...(options.headers||{})},body:options.body?JSON.stringify(options.body):undefined});const p=await r.json().catch(()=>({}));if(!r.ok)throw new Error(p.error||'No se pudo completar la solicitud.');return p;};
+ window.NeonAPI=api;
+ DB.loginUsuarioSistema=async(email,password)=>(await api('auth/login',{method:'POST',body:{email,password}})).user;
+ DB.buscarEstudiante=async email=>{const s=await api('auth/me');if(s.user.rol==='estudiante')return s.estudiante&&s.estudiante.email.toLowerCase()===email.toLowerCase()?s.estudiante:null;return api('students/lookup?email='+encodeURIComponent(email));};
+ DB.registrarEstudiante=d=>api('auth/register-student',{method:'POST',body:{nombre:d.nombre_completo,email:d.email,cedula:d.cedula,password:d.password}});
+ DB.listarUsuariosSistema=()=>api('admin/users'); DB.crearUsuarioSistema=d=>api('admin/users',{method:'POST',body:{nombre:d.nombre_completo,email:d.email,password:d.password_hash,rol:d.rol}});
+ DB.listarTodosEstudiantes=()=>api('students'); DB.obtenerProgreso=()=>api('progress'); DB.listarTodosProgresos=()=>api('progress');
+ DB.listarProgresoDeEstudiante=async email=>(await api('progress')).filter(p=>p.estudiante_email?.toLowerCase()===email.toLowerCase());
+ DB.guardarProgreso=(_email,unidad,datos)=>api('progress',{method:'POST',body:{unidad_id:unidad,...datos}});
+ DB.obtenerCertificado=()=>api('certificates'); DB.listarTodosCertificados=()=>api('certificates');
+ DB.emitirCertificado=d=>api('certificates',{method:'POST',body:{codigo_certificado:d.codigo_certificado,promedio_final:d.promedio_final}});
+ DB.cambiarEstadoUsuario=(email,activo)=>api('admin/user-status',{method:'PATCH',body:{email,activo}});
+ DB.registrarLog=(_email,accion,detalle)=>api('logs',{method:'POST',body:{actividad:[accion,detalle].filter(Boolean).join(': ')}});
+ window.registrarEstudiante=async e=>{e.preventDefault();const d={nombre_completo:regNombre.value.trim(),email:regEmail.value.trim().toLowerCase(),cedula:regCedula.value.trim(),password:regPassword.value};try{await DB.registrarEstudiante(d);estudianteActual=(await api('auth/me')).estudiante;usuarioSistema=null;localStorage.setItem('unes_email',d.email);localStorage.removeItem('staff_email');cerrarModal('modalRegistro');actualizarUIRol();await recargarProgreso();e.target.reset();alert('Matrícula y cuenta creadas correctamente.');}catch(x){alert(x.message);}};
+ window.loginEstudiante=async e=>{e.preventDefault();const email=loginEmail.value.trim().toLowerCase(),password=loginPassword.value;try{const x=await api('auth/login',{method:'POST',body:{email,password}});if(x.user.rol!=='estudiante'){await api('auth/logout',{method:'POST'});throw Error('Esta cuenta no corresponde al perfil de estudiante.');}estudianteActual=(await api('auth/me')).estudiante;usuarioSistema=null;localStorage.setItem('unes_email',email);localStorage.removeItem('staff_email');cerrarModal('modalLogin');actualizarUIRol();await recargarProgreso();}catch(x){alert(x.message);}};
+ window.loginStaff=async e=>{e.preventDefault();const email=staffEmail.value.trim().toLowerCase(),password=document.getElementById('staffPassword').value;try{const x=await api('auth/login',{method:'POST',body:{email,password}});if(!['docente','administrador'].includes(x.user.rol)){await api('auth/logout',{method:'POST'});throw Error('Esta cuenta no tiene permisos de personal.');}usuarioSistema=x.user;estudianteActual=null;localStorage.removeItem('unes_email');localStorage.setItem('staff_email',email);cerrarModal('modalStaff');actualizarUIRol();await mostrarPanelSegunRol();}catch(x){alert(x.message);}};
+ window.crearUsuarioSistema=async e=>{e.preventDefault();const d={nombre_completo:nuNombre.value.trim(),email:nuEmail.value.trim().toLowerCase(),password_hash:nuPassword.value,rol:nuRol.value};try{await DB.crearUsuarioSistema(d);cerrarModal('modalCrearUsuario');e.target.reset();await cargarPanelAdmin();alert('Cuenta creada correctamente.');}catch(x){alert(x.message);}};
+ window.mostrarPanelSegunRol=async()=>{if(!usuarioSistema)return;if(usuarioSistema.rol==='administrador'){mostrarVista('admin');await cargarPanelAdmin();}else if(usuarioSistema.rol==='docente'){mostrarVista('supervisor');await cargarPanelSupervisor();}};
+ window.restaurarSesiones=async()=>{try{const s=await api('auth/me');if(s.user.rol==='estudiante'){estudianteActual=s.estudiante;usuarioSistema=null;actualizarUIRol();await recargarProgreso();}else{usuarioSistema=s.user;estudianteActual=null;actualizarUIRol();await mostrarPanelSegunRol();}}catch(_){localStorage.removeItem('unes_email');localStorage.removeItem('staff_email');}};
+ window.cerrarSesion=async()=>{try{await api('auth/logout',{method:'POST'});}finally{localStorage.removeItem('unes_email');localStorage.removeItem('staff_email');location.reload();}};
 })();
