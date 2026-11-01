@@ -346,6 +346,7 @@
             <input type="text" id="regNombre" placeholder="Nombre completo" required>
             <input type="text" id="regCedula" placeholder="Cédula (V-12345678)" required>
             <input type="email" id="regEmail" placeholder="Correo electrónico" required>
+            <input type="password" id="regPassword" placeholder="Crear contraseña (mínimo 10 caracteres)" minlength="10" autocomplete="new-password" required>
             <input type="text" id="regTelefono" placeholder="Teléfono (opcional)">
             <input type="text" id="regProfesion" placeholder="Profesión (opcional)">
             <input type="text" id="regInstitucion" placeholder="Institución donde labora (opcional)">
@@ -361,31 +362,12 @@
     <div class="modal-content">
         <span class="modal-close" onclick="cerrarModal('modalLogin')">&times;</span>
         <h3>Iniciar Sesión</h3>
-        <p class="modal-sub">Acceso para estudiantes matriculados</p>
+        <p class="modal-sub">Acceso para estudiantes y personal UNES</p>
         <form id="formLogin">
-            <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
+            <input type="email" id="loginEmail" placeholder="Correo electrónico" autocomplete="username" required>
+            <input type="password" id="loginPassword" placeholder="Contraseña" autocomplete="current-password" required>
             <button type="submit" class="btn-primary btn-block">Entrar</button>
-            <p class="hint">Usa el correo con el que te matriculaste</p>
-        </form>
-    </div>
-</div>
-
-<!-- ============================================
-     MODAL: ACCESO STAFF (supervisor/admin)
-     ============================================ -->
-<div class="modal" id="modalStaff">
-    <div class="modal-content">
-        <span class="modal-close" onclick="cerrarModal('modalStaff')">&times;</span>
-        <h3>🔐 Acceso Staff UNES</h3>
-        <p class="modal-sub">Solo supervisores y administradores</p>
-        <form id="formStaff">
-            <input type="email" id="staffEmail" placeholder="Correo institucional" required>
-            <input type="password" id="staffPassword" placeholder="Contraseña" required>
-            <button type="submit" class="btn-primary btn-block">Ingresar</button>
-            <p class="hint">
-                Demo admin: <b>admin@unes.com.ve</b> / admin123<br>
-                Demo supervisor: <b>supervisor@unes.com.ve</b> / super123
-            </p>
+            <p class="hint">Ingresa con tu correo y contraseña. El sistema identifica automáticamente tu perfil.</p>
         </form>
     </div>
 </div>
@@ -405,7 +387,7 @@
             <input type="password" id="nuPassword" placeholder="Contraseña" required>
             <select id="nuRol" required>
                 <option value="">Selecciona rol</option>
-                <option value="supervisor">Supervisor</option>
+                <option value="docente">Docente</option>
                 <option value="administrador">Administrador</option>
             </select>
             <button type="submit" class="btn-primary btn-block">Crear Usuario</button>
@@ -447,7 +429,7 @@
      SCRIPTS (orden importa)
      ============================================ -->
 <script src="data.js"></script>
-<script src="supabase-client.js"></script>
+<script src="neon-client.js"></script>
 <script src="app.js"></script>
 <script src="zoom-classes.js"></script>
 
