@@ -1633,3 +1633,91 @@ main.container { padding-top: 34px; padding-bottom: 54px; }
   .stat-num { font-size:30px; }
   .modal-content { padding:28px 20px; }
 }
+
+
+/* PORTADA RENOVADA · COMPOSICIÓN INSTITUCIONAL */
+.hero-home {
+  display:grid;
+  grid-template-columns:minmax(0,1.55fr) minmax(260px,.75fr);
+  align-items:center;
+  gap:clamp(28px,5vw,68px);
+  min-height:390px;
+  padding:clamp(30px,5vw,64px);
+  text-align:left;
+  background:
+    radial-gradient(circle at 78% 18%,rgba(211,178,105,.2),transparent 18rem),
+    linear-gradient(120deg,#071a31 0%,#102b4e 58%,#1c426c 100%);
+}
+.hero-copy { position:relative; z-index:1; }
+.hero-kicker,.eyebrow {
+  display:block;
+  color:#b99a55;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+  margin-bottom:12px;
+}
+.hero-home .hero-badge { display:table; margin:0 0 20px; }
+.hero-home h2 { max-width:690px; font-size:clamp(34px,4.2vw,52px); line-height:1.08; margin-bottom:18px; }
+.hero-home p { max-width:620px; font-size:16px; line-height:1.75; color:rgba(255,255,255,.83); margin-bottom:22px; }
+.hero-course-meta { display:flex; flex-wrap:wrap; gap:8px; margin:0 0 26px; }
+.hero-course-meta span { padding:7px 11px; border:1px solid rgba(255,255,255,.18); border-radius:8px; color:#f3f6fa; background:rgba(255,255,255,.07); font-size:11px; }
+.hero-course-meta strong { color:#e7c979; }
+.hero-home .hero-acciones { justify-content:flex-start; }
+.hero-home .btn-hero { min-width:165px; }
+.hero-home .btn-hero-outline { color:#fff; background:transparent; border:1px solid rgba(255,255,255,.5); box-shadow:none; }
+.hero-panel {
+  position:relative; z-index:1; padding:28px 26px;
+  border:1px solid rgba(231,201,121,.34); border-radius:20px;
+  background:linear-gradient(155deg,rgba(255,255,255,.14),rgba(255,255,255,.055));
+  box-shadow:0 18px 42px rgba(0,0,0,.16); color:#fff; backdrop-filter:blur(8px);
+}
+.hero-panel-mark { display:grid; place-items:center; width:62px; height:62px; margin-bottom:22px; border-radius:14px; background:#fff; color:#102b4e; font-size:19px; font-weight:900; letter-spacing:.06em; }
+.hero-panel-label { color:#e7c979; font-size:10px; font-weight:800; letter-spacing:.14em; }
+.hero-panel h3 { margin:9px 0; color:#fff; font-size:24px; }
+.hero-panel p { color:rgba(255,255,255,.78); font-size:13px; line-height:1.7; }
+.hero-panel-rule { height:1px; margin:20px 0 12px; background:rgba(255,255,255,.2); }
+.hero-panel-stat { display:flex; align-items:baseline; gap:12px; padding:8px 0; }
+.hero-panel-stat strong { min-width:58px; color:#e7c979; font-size:29px; }
+.hero-panel-stat span { color:rgba(255,255,255,.82); font-size:12px; }
+.home-access,.home-stats { margin:34px 0; }
+.home-section-heading { display:flex; align-items:end; justify-content:space-between; gap:18px; margin-bottom:16px; }
+.home-section-heading h3,.home-featured-heading h3 { margin:0; color:#102b4e; font-size:23px; font-weight:800; }
+.home-section-heading p { color:#65758b; font-size:13px; }
+.home-section-heading .eyebrow,.home-featured-heading .eyebrow { margin-bottom:5px; }
+.home-access-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:15px; }
+.home-access-card { display:flex; align-items:center; gap:13px; width:100%; min-height:112px; padding:18px; text-align:left; border:1px solid #e1e7ef; border-radius:15px; background:#fff; box-shadow:0 5px 18px rgba(15,35,62,.045); cursor:pointer; transition:transform .2s,box-shadow .2s,border-color .2s; font:inherit; }
+.home-access-card:hover { transform:translateY(-3px); border-color:#c9a34d; box-shadow:0 12px 28px rgba(15,35,62,.09); }
+.access-icon { display:grid; place-items:center; flex:0 0 43px; height:43px; border-radius:12px; background:#edf2f8; color:#173e6b; font-size:13px; font-weight:900; }
+.access-teacher { background:#f7f0df; color:#8c6a24; }
+.access-course { background:#e8f3f1; color:#27766a; }
+.access-copy { display:grid; gap:5px; flex:1; }
+.access-copy strong { color:#102b4e; font-size:14px; }
+.access-copy small { color:#65758b; font-size:11px; line-height:1.5; }
+.access-arrow { color:#b18b3e; font-size:21px; font-weight:800; }
+.home-stats .stats { margin:0; }
+.home-featured-heading { display:flex; align-items:end; justify-content:space-between; gap:16px; margin:38px 0 16px; }
+.home-featured-heading .section-title { margin:0; }
+.text-link { padding:8px 0; border:0; background:none; color:#315b88; font:700 13px inherit; cursor:pointer; }
+.text-link:hover { color:#9a762d; }
+@media(max-width:850px) {
+ .hero-home { grid-template-columns:1fr; gap:24px; }
+ .hero-panel { display:grid; grid-template-columns:62px 1fr; column-gap:15px; align-items:center; }
+ .hero-panel-mark { grid-row:span 2; margin:0; }
+ .hero-panel-label { align-self:end; }
+ .hero-panel h3 { margin:3px 0; }
+ .hero-panel p,.hero-panel-rule,.hero-panel-stat { grid-column:1/-1; }
+ .home-access-grid { grid-template-columns:1fr; }
+}
+@media(max-width:600px) {
+ .hero-home { padding:30px 22px; min-height:0; }
+ .hero-home h2 { font-size:33px; }
+ .hero-home p { font-size:14px; }
+ .hero-course-meta { gap:6px; }
+ .hero-course-meta span { font-size:10px; }
+ .hero-panel { padding:20px; }
+ .home-section-heading,.home-featured-heading { align-items:flex-start; flex-direction:column; }
+ .home-section-heading h3,.home-featured-heading h3 { font-size:20px; }
+ .home-access-card { min-height:96px; padding:14px; }
+}
