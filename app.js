@@ -266,7 +266,7 @@ async function mostrarPanelSegunRol() {
     if (usuarioSistema.rol === 'administrador') {
         mostrarVista('admin');
         await cargarPanelAdmin();
-    } else if (usuarioSistema.rol === 'supervisor') {
+    } else if (['supervisor', 'docente'].includes(usuarioSistema.rol)) {
         mostrarVista('docente');
         await cargarPanelDocente();
     }
@@ -283,7 +283,7 @@ function actualizarUIRol() {
     navDocente.style.display = 'none';
 
     if (usuarioSistema) {
-        const nombre = usuarioSistema.nombre_completo.split(' ')[0];
+        const nombre = (usuarioSistema.nombre_completo || usuarioSistema.email || 'Usuario').split(' ')[0];
         const esAdmin = usuarioSistema.rol === 'administrador';
         const etiquetaRol = esAdmin ? 'Administrador' : 'Docente';
         const icono = esAdmin ? '👑' : '👨‍🏫';
@@ -294,7 +294,7 @@ function actualizarUIRol() {
         if (usuarioSistema.rol === 'administrador') navAdmin.style.display = 'inline-block';
         if (['supervisor', 'docente'].includes(usuarioSistema.rol)) navDocente.style.display = 'inline-block';
     } else if (estudianteActual) {
-        const nombre = estudianteActual.nombre_completo.split(' ')[0];
+        const nombre = (estudianteActual.nombre_completo || estudianteActual.email || 'Estudiante').split(' ')[0];
         navProg.style.display = 'inline-block';
         area.innerHTML = `
             <button class="btn-user" onclick="mostrarVista('progreso')">👤 ${nombre}</button>
