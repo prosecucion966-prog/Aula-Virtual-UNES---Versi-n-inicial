@@ -117,12 +117,77 @@ module.exports = async (req, res) => {
       if (user.rol === 'estudiante') {
         const student = await db().query('SELECT id FROM estudiantes WHERE lower(email)=lower($1)', [user.email]);
         if (!student.rowCount) return send(res, 200, []);
-        const rows = await db().query('SELECT id,estudiante_id,unidad AS unidad_id,completado,actualizado_en FROM progreso WHERE estudiante_id=$1 ORDER BY unidad', [student.rows[0].id]);
+        const rows = await db().query('SELECT id,estudiante_id,unidad AS unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,actualizado_en FROM progreso WHERE estudiante_id=$1 ORDER BY unidad', [student.rows[0].id]);
         return send(res, 200, rows.rows);
       }
       if (!['administrador','docente'].includes(user.rol)) return send(res, 403, { error: 'Sin permisos.' });
-      const rows = await db().query('SELECT id,estudiante_id,unidad AS unidad_id,completado,actualizado_en FROM progreso ORDER BY estudiante_id,unidad');
+      const rows = await db().query('SELECT id,estudiante_id,unidad AS unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,actualizado_en FROM progreso ORDER BY estudiante_id,unidad');
       return send(res, 200, rows.rows);
+    }
+
+    if (route === 'students/lookup' && req.method === 'GET') {
+      if (!['administrador','docente'].includes(user.rol)) return send(res,403,{error:'Sin permisos.'});
+      const email=String(req.query?.email || '').trim().toLowerCase();
+      const row=await db().query('SELECT id,nombre AS nombre_completo,email,cedula,activo FROM estudiantes WHERE lower(email)=lower($1)',[email]);
+      return row.rowCount ? send(res,200,row.rows[0]) : send(res,404,{error:'Estudiante no encontrado.'});
+    }
+    if (route === 'progress' && req.method === 'POST') {
+      if (user.rol !== 'estudiante') return send(res,403,{error:'Solo el estudiante puede registrar su progreso.'});
+      const {unidad_id, ...values}=req.body || {};
+      const unit=Number(unidad_id);
+      if (!Number.isInteger(unit) || unit < 1 || unit > 100) return send(res,400,{error:'Unidad inválida.'});
+      const allowed=['guia_leida','test_intentos','test_mejor_nota','completar_intentos','completar_mejor_nota','aprobada'];
+      const keys=Object.keys(values).filter(k=>allowed.includes(k));
+      if (!keys.length) return send(res,400,{error:'No hay datos de progreso válidos.'});
+      const student=await db().query('SELECT id FROM estudiantes WHERE lower(email)=lower($1)',[user.email]);
+      if (!student.rowCount) return send(res,404,{error:'Estudiante no encontrado.'});
+      const cols=['estudiante_id','unidad',...keys,'completado'];
+      const vals=[student.rows[0].id,unit,...keys.map(k=>values[k]),Boolean(values.aprobada)];
+      const placeholders=vals.map((_,i)=>'
+  } catch (error) {
+    console.error('API error:', error.message);
+    if (error.code === '23505') return send(res, 409, { error: 'El correo ya existe.' });
+    return send(res, 500, { error: 'Error interno del servidor.' });
+  }
+};
++(i+1));
+      const updates=keys.map(k=>k+'=EXCLUDED.'+k).concat(['completado=EXCLUDED.completado','actualizado_en=now()']);
+      const sql='INSERT INTO progreso('+cols.join(',')+') VALUES('+placeholders.join(',')+') ON CONFLICT(estudiante_id,unidad) DO UPDATE SET '+updates.join(',')+' RETURNING id,estudiante_id,unidad AS unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,actualizado_en';
+      const saved=await db().query(sql,vals);
+      return send(res,200,saved.rows[0]);
+    }
+    if (route === 'admin/user-status' && req.method === 'PATCH') {
+      if(user.rol!=='administrador') return send(res,403,{error:'Acceso exclusivo de administración.'});
+      const email=String(req.body?.email||'').trim().toLowerCase(), activo=Boolean(req.body?.activo);
+      const changed=await db().query('UPDATE usuarios SET activo=$1 WHERE lower(email)=lower($2) AND id<>$3 RETURNING id,email,activo',[activo,email,user.id]);
+      if(!changed.rowCount) return send(res,404,{error:'Usuario no encontrado o no modificable.'});
+      await db().query('INSERT INTO log_actividad(usuario_id,actividad) VALUES($1,$2)',[user.id,(activo?'Activó ':'Desactivó ')+email]);
+      return send(res,200,changed.rows[0]);
+    }
+    if (route === 'certificates' && req.method === 'GET') {
+      if(user.rol==='estudiante') {
+        const rows=await db().query('SELECT c.codigo AS codigo_certificado,c.fecha_emision,c.promedio_final,s.nombre AS nombre_completo,s.cedula FROM certificados c JOIN estudiantes s ON s.id=c.estudiante_id WHERE s.id=(SELECT id FROM estudiantes WHERE lower(email)=lower($1))',[user.email]);
+        return send(res,200,rows.rows[0]||null);
+      }
+      if(!['administrador','docente'].includes(user.rol)) return send(res,403,{error:'Sin permisos.'});
+      const rows=await db().query('SELECT c.codigo AS codigo_certificado,c.fecha_emision,c.promedio_final,s.nombre AS nombre_completo,s.email,s.cedula FROM certificados c JOIN estudiantes s ON s.id=c.estudiante_id ORDER BY c.fecha_emision DESC');
+      return send(res,200,rows.rows);
+    }
+    if (route === 'certificates' && req.method === 'POST') {
+      if(user.rol!=='estudiante') return send(res,403,{error:'Solo el estudiante puede emitir su certificado.'});
+      const {codigo_certificado,promedio_final}=req.body||{};
+      const student=await db().query('SELECT id,nombre,cedula FROM estudiantes WHERE lower(email)=lower($1)',[user.email]);
+      if(!student.rowCount) return send(res,404,{error:'Estudiante no encontrado.'});
+      const summary=await db().query('SELECT count(*) FILTER (WHERE aprobada)::int AS aprobadas FROM progreso WHERE estudiante_id=$1',[student.rows[0].id]);
+      if(summary.rows[0].aprobadas<9) return send(res,409,{error:'Debe aprobar las nueve unidades.'});
+      const created=await db().query('INSERT INTO certificados(estudiante_id,codigo,promedio_final) VALUES($1,$2,$3) ON CONFLICT(estudiante_id) DO NOTHING RETURNING codigo AS codigo_certificado,fecha_emision,promedio_final',[student.rows[0].id,String(codigo_certificado||''),Number(promedio_final)]);
+      const cert=created.rows[0] || (await db().query('SELECT codigo AS codigo_certificado,fecha_emision,promedio_final FROM certificados WHERE estudiante_id=$1',[student.rows[0].id])).rows[0];
+      return send(res,201,{...cert,nombre_completo:student.rows[0].nombre,cedula:student.rows[0].cedula});
+    }
+    if (route === 'logs' && req.method === 'POST') {
+      const activity=String(req.body?.actividad||'').slice(0,500);
+      if(activity) await db().query('INSERT INTO log_actividad(usuario_id,actividad) VALUES($1,$2)',[user.id,activity]);
+      return send(res,201,{ok:true});
     }
     return send(res, 404, { error: 'Ruta no encontrada.' });
   } catch (error) {
