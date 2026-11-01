@@ -142,18 +142,28 @@ module.exports = async (req, res) => {
       const {unidad_id, ...values}=req.body || {};
       const unit=Number(unidad_id);
       if (!Number.isInteger(unit) || unit < 1 || unit > 9) return send(res,400,{error:'Unidad inválida.'});
-      const allowed=['guia_leida','test_intentos','test_mejor_nota','completar_intentos','completar_mejor_nota','aprobada'];
-      const keys=Object.keys(values).filter(k=>allowed.includes(k));
-      if (!keys.length) return send(res,400,{error:'No hay datos de progreso válidos.'});
       const student=await db().query('SELECT id FROM estudiantes WHERE lower(email)=lower($1)',[user.email]);
       if (!student.rowCount) return send(res,404,{error:'Estudiante no encontrado.'});
-      const cols=['estudiante_id','unidad_id',...keys,'completado'];
-      const vals=[student.rows[0].id,unit,...keys.map(k=>values[k]),Boolean(values.aprobada)];
-      const placeholders=vals.map((_,i)=>'$'+(i+1));
-      const updates=keys.map(k=>k+'=EXCLUDED.'+k).concat(['completado=EXCLUDED.completado','updated_at=now()']);
-      const sql='INSERT INTO progreso('+cols.join(',')+') VALUES('+placeholders.join(',')+') ON CONFLICT(estudiante_id,unidad_id) DO UPDATE SET '+updates.join(',')+' RETURNING id,estudiante_id,unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,updated_at';
-      const saved=await db().query(sql,vals);
+      const current=(await db().query('SELECT * FROM progreso WHERE estudiante_id=$1 AND unidad_id=$2 FOR UPDATE',[student.rows[0].id,unit])).rows[0] || {};
+      const testAttempts=Number(values.test_intentos ?? current.test_intentos ?? 0);
+      const completeAttempts=Number(values.completar_intentos ?? current.completar_intentos ?? 0);
+      if (!Number.isInteger(testAttempts) || testAttempts < Number(current.test_intentos || 0) || testAttempts > 2) return send(res,400,{error:'Se permiten como máximo dos intentos del test.'});
+      if (!Number.isInteger(completeAttempts) || completeAttempts < Number(current.completar_intentos || 0) || completeAttempts > 2) return send(res,400,{error:'Se permiten como máximo dos intentos para completar la unidad.'});
+      const testScore=Number(values.test_mejor_nota ?? current.test_mejor_nota ?? 0);
+      const completeScore=Number(values.completar_mejor_nota ?? current.completar_mejor_nota ?? 0);
+      if (![testScore,completeScore].every(n=>Number.isFinite(n) && n>=0 && n<=20)) return send(res,400,{error:'La nota debe estar entre 0 y 20.'});
+      const guideRead=Boolean(values.guia_leida ?? current.guia_leida ?? false);
+      const approved=Boolean(current.aprobada) || (guideRead && testAttempts>0 && completeAttempts>0 && testScore>=14 && completeScore>=14);
+      const vals=[student.rows[0].id,unit,guideRead,testAttempts,testScore,completeAttempts,completeScore,approved,approved];
+      const saved=await db().query('INSERT INTO progreso(estudiante_id,unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT(estudiante_id,unidad_id) DO UPDATE SET guia_leida=EXCLUDED.guia_leida,test_intentos=EXCLUDED.test_intentos,test_mejor_nota=GREATEST(progreso.test_mejor_nota,EXCLUDED.test_mejor_nota),completar_intentos=EXCLUDED.completar_intentos,completar_mejor_nota=GREATEST(progreso.completar_mejor_nota,EXCLUDED.completar_mejor_nota),aprobada=EXCLUDED.aprobada,completado=EXCLUDED.completado,updated_at=now() RETURNING id,estudiante_id,unidad_id,guia_leida,test_intentos,test_mejor_nota,completar_intentos,completar_mejor_nota,aprobada,completado,updated_at',vals);
       return send(res,200,saved.rows[0]);
+    }
+    if (route === 'certificados/verificar' && req.method === 'GET') {
+      const code=String(req.query?.codigo || '').trim();
+      if (!code) return send(res,400,{error:'Código requerido.'});
+      const found=await db().query('SELECT s.nombre_completo,c.fecha_emision FROM certificados c JOIN estudiantes s ON s.id=c.estudiante_id WHERE c.codigo=$1',[code]);
+      if (!found.rowCount) return send(res,404,{error:'Certificado no encontrado.'});
+      return send(res,200,{nombre:found.rows[0].nombre_completo,fecha:found.rows[0].fecha_emision,estado:'Válido'});
     }
     if (route === 'admin/user-status' && req.method === 'PATCH') {
       if(user.rol!=='administrador') return send(res,403,{error:'Acceso exclusivo de administración.'});
@@ -179,7 +189,7 @@ module.exports = async (req, res) => {
       if(!student.rowCount) return send(res,404,{error:'Estudiante no encontrado.'});
       const summary=await db().query('SELECT count(*) FILTER (WHERE aprobada)::int AS aprobadas FROM progreso WHERE estudiante_id=$1',[student.rows[0].id]);
       if(summary.rows[0].aprobadas<9) return send(res,409,{error:'Debe aprobar las nueve unidades.'});
-      const created=await db().query('INSERT INTO certificados(estudiante_id,codigo,promedio_final) VALUES($1,$2,$3) ON CONFLICT(estudiante_id) DO NOTHING RETURNING codigo AS codigo_certificado,fecha_emision,promedio_final',[student.rows[0].id,String(codigo_certificado||''),Number(promedio_final)]);
+      const code=String(codigo_certificado||('UNES-'+require('node:crypto').randomBytes(8).toString('hex').toUpperCase()));\n      const average=Number.isFinite(Number(promedio_final)) ? Math.max(0,Math.min(20,Number(promedio_final))) : 0;\n      const created=await db().query('INSERT INTO certificados(estudiante_id,codigo,promedio_final) VALUES($1,$2,$3) ON CONFLICT(estudiante_id) DO NOTHING RETURNING codigo AS codigo_certificado,fecha_emision,promedio_final',[student.rows[0].id,code,average]);
       const cert=created.rows[0] || (await db().query('SELECT codigo AS codigo_certificado,fecha_emision,promedio_final FROM certificados WHERE estudiante_id=$1',[student.rows[0].id])).rows[0];
       return send(res,201,{...cert,nombre_completo:student.rows[0].nombre_completo,cedula:student.rows[0].cedula});
     }
