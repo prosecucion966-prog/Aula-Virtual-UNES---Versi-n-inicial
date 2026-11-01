@@ -31,6 +31,7 @@
             <a data-view="progreso" id="navProgreso" style="display:none;">Mi Progreso</a>
             <a data-view="admin" id="navAdmin" style="display:none;">Panel Admin</a>
             <a data-view="supervisor" id="navSupervisor" style="display:none;">Panel Supervisor</a>
+            <a data-view="clases" id="navClases" style="display:none;">Clases en vivo</a>
             <a data-view="acerca">Acerca de</a>
         </nav>
         <div id="userArea">
@@ -174,6 +175,57 @@
                 </thead>
                 <tbody id="tablaEstudiantesSupervisor"></tbody>
             </table>
+        </div>
+    </section>
+
+ 
+    <!-- ============================================
+         VISTA CLASES EN VIVO · ZOOM
+         ============================================ -->
+    <section id="view-clases" class="view">
+        <div class="view-header">
+            <div>
+                <span class="hero-badge" style="background:#eef3f8;color:#102d55;border-color:#d8b45a;">AULA VIRTUAL · ENCUENTROS SINCRÓNICOS</span>
+                <h2>Clases en vivo</h2>
+                <p class="modal-sub">Programa encuentros académicos y comparte el acceso con tus estudiantes.</p>
+            </div>
+            <button class="btn-primary" id="btnNuevaClase">＋ Programar clase</button>
+        </div>
+        <div class="zoom-layout">
+            <div class="zoom-intro">
+                <div class="zoom-mark">Z</div>
+                <div>
+                    <h3>Conecta tu aula con Zoom</h3>
+                    <p>Organiza sesiones virtuales, registra el enlace de acceso y mantenlo disponible para los participantes.</p>
+                </div>
+            </div>
+            <div id="zoomClassFormWrap" class="progreso-card" style="display:none;">
+                <h3>Programar una clase</h3>
+                <p class="modal-sub">Completa los datos. Se abrirá Zoom para crear la reunión y luego podrás guardar aquí el enlace generado.</p>
+                <form id="formZoomClase" class="zoom-form">
+                    <label>Nombre de la clase<input id="zoomTitulo" required maxlength="120" placeholder="Ej. Introducción a la unidad curricular"></label>
+                    <label>Unidad o programa<input id="zoomUnidad" maxlength="120" placeholder="Ej. Unidad I · Fundamentos"></label>
+                    <div class="zoom-form-row">
+                        <label>Fecha<input id="zoomFecha" type="date" required></label>
+                        <label>Hora<input id="zoomHora" type="time" required></label>
+                        <label>Duración
+                            <select id="zoomDuracion"><option value="30">30 minutos</option><option value="45">45 minutos</option><option value="60" selected>60 minutos</option><option value="90">90 minutos</option><option value="120">120 minutos</option></select>
+                        </label>
+                    </div>
+                    <label>Descripción<textarea id="zoomDescripcion" rows="3" maxlength="500" placeholder="Objetivo y detalles de la sesión"></textarea></label>
+                    <div class="zoom-form-actions">
+                        <button type="button" class="btn-primary" id="btnAbrirZoom">Abrir Zoom para crear reunión ↗</button>
+                        <button type="submit" class="btn-hero">Guardar clase y enlace</button>
+                        <button type="button" class="btn-user zoom-cancel" id="btnCancelarClase">Cancelar</button>
+                    </div>
+                    <label>Enlace de invitación de Zoom<input id="zoomJoinUrl" type="url" placeholder="https://zoom.us/j/..." required></label>
+                    <p class="hint">Después de crear la reunión en Zoom, copia aquí el enlace de invitación. Esta versión guarda las clases en este navegador; la sincronización multiusuario se habilitará con la API y la base de datos.</p>
+                </form>
+            </div>
+            <div class="progreso-card">
+                <div class="view-header"><h3>Próximas clases</h3><span class="badge badge-fase" id="zoomClassCount">0 clases</span></div>
+                <div id="zoomClassList" class="zoom-class-list"><div class="zoom-empty">Aún no hay clases programadas.</div></div>
+            </div>
         </div>
     </section>
 
@@ -372,6 +424,7 @@
 <script src="data.js"></script>
 <script src="supabase-client.js"></script>
 <script src="app.js"></script>
+<script src="zoom-classes.js"></script>
 
 </body>
 </html>
