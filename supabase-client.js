@@ -1,6 +1,6 @@
 // ==========================================
 // CONEXIÓN A SUPABASE — Aula Virtual UNES
-// Sistema multi-rol: estudiante, supervisor, administrador
+// Sistema multi-rol: estudiante, docente (supervisor legado), administrador
 // ==========================================
 
 // ⚠️ REEMPLAZA ESTOS DOS VALORES CON LOS TUYOS DE SUPABASE:
