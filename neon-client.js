@@ -1,3 +1,4 @@
+window.DB = window.DB || {};
 // Cliente de la API segura de Neon. app.js se carga antes que este archivo.
 (function () {
  const api=async(path,options={})=>{const r=await fetch('/api/'+path,{method:options.method||'GET',credentials:'same-origin',headers:{'Content-Type':'application/json',...(options.headers||{})},body:options.body?JSON.stringify(options.body):undefined});const p=await r.json().catch(()=>({}));if(!r.ok)throw new Error(p.error||'No se pudo completar la solicitud.');return p;};
