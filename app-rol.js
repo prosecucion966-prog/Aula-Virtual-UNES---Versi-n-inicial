@@ -54,6 +54,7 @@ async function restaurarSesionStaff(email) {
 function actualizarUIStaff() {
     const area = document.getElementById('userArea');
     if (usuarioSistema) {
+        document.getElementById('navClases').style.display = 'inline-block';
         const nombre = usuarioSistema.nombre_completo.split(' ')[0];
         const icono = usuarioSistema.rol === 'administrador' ? '👑' : '👨‍🏫';
         area.innerHTML = `
@@ -97,6 +98,7 @@ async function cargarSesionEstudiante(email) {
 function actualizarUIEstudiante() {
     if (usuarioSistema) return; // Si hay staff logueado, no tocar
     if (estudianteActual) {
+        document.getElementById('navClases').style.display = 'none';
         const area = document.getElementById('userArea');
         const nombre = estudianteActual.nombre_completo.split(' ')[0];
         document.getElementById('navProgreso').style.display = 'inline-block';
