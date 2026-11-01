@@ -725,7 +725,7 @@ async function cargarPanelSupervisor() {
     const [estudiantes, certificados, todosProgresos] = await Promise.all([
         DB.listarTodosEstudiantes(),
         DB.listarTodosCertificados(),
-        fetch(`${SUPABASE_URL}/rest/v1/progreso`, { headers: DB.headers }).then(r => r.json())
+        DB.listarTodosProgresos()
     ]);
     const datosEst = estudiantes.map(est => {
         const suyos = todosProgresos.filter(p => p.estudiante_email === est.email);
