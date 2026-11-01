@@ -36,10 +36,14 @@ const DB = {
 
     async buscarEstudiante(email) {
         const res = await fetch(
-            `${SUPABASE_URL}/rest/v1/estudiantes?email=eq.${encodeURIComponent(email)}`,
+            `${SUPABASE_URL}/rest/v1/estudiantes?email=eq.${encodeURIComponent(email)}&select=*`,
             { headers: this.headers }
         );
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(data.message || data.details || 'Error de base de datos HTTP ' + res.status + '. Comprueba la tabla estudiantes y sus permisos RLS.');
+        }
+        if (!Array.isArray(data)) throw new Error(data.message || 'Respuesta inesperada de Supabase.');
         return data[0] || null;
     },
 
