@@ -1,6 +1,6 @@
 // ==========================================
 // app.js — Aula Virtual UNES (sistema multi-rol)
-// Roles: estudiante, supervisor, administrador
+// Roles: estudiante, docente (supervisor legado), administrador
 // ==========================================
 
 let estudianteActual = null;
@@ -47,8 +47,8 @@ function mostrarVista(nombre) {
         alert('⚠ Acceso restringido a administradores');
         return;
     }
-    if (nombre === 'supervisor' && usuarioSistema?.rol !== 'supervisor') {
-        alert('⚠ Acceso restringido a supervisores');
+    if (nombre === 'docente' && !['supervisor', 'docente'].includes(usuarioSistema?.rol)) {
+        alert('⚠ Acceso restringido a docentes');
         return;
     }
     if (nombre === 'progreso' && !estudianteActual) {
@@ -63,7 +63,7 @@ function mostrarVista(nombre) {
     });
     if (nombre === 'progreso') renderizarProgreso();
     if (nombre === 'admin') cargarPanelAdmin();
-    if (nombre === 'supervisor') cargarPanelSupervisor();
+    if (nombre === 'docente') cargarPanelDocente();
 }
 
 function abrirModal(id) { document.getElementById(id)?.classList.add('active'); }
@@ -225,19 +225,27 @@ async function registrarEstudiante(e) {
 async function loginEstudiante(e) {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim().toLowerCase();
-    const est = await DB.buscarEstudiante(email);
-    if (!est) {
-        alert('❌ No estás matriculado. Regístrate primero.');
+    if (!email) {
+        alert('Escribe el correo con el que te matriculaste.');
         return;
     }
-    estudianteActual = est;
-    usuarioSistema = null;
-    localStorage.setItem('unes_email', email);
-    localStorage.removeItem('staff_email');
-    cerrarModal('modalLogin');
-    actualizarUIRol();
-    await recargarProgreso();
-    alert('👋 ¡Bienvenido/a de nuevo, ' + est.nombre_completo + '!');
+    try {
+        const est = await DB.buscarEstudiante(email);
+        if (!est) {
+            alert('❌ No aparece una matrícula con ese correo. Verifica el correo o solicita al administrador que revise tu inscripción.');
+            return;
+        }
+        estudianteActual = est;
+        usuarioSistema = null;
+        localStorage.setItem('unes_email', email);
+        localStorage.removeItem('staff_email');
+        cerrarModal('modalLogin');
+        actualizarUIRol();
+        await recargarProgreso();
+        alert('👋 ¡Bienvenido/a de nuevo, ' + (est.nombre_completo || email) + '!');
+    } catch (err) {
+        alert('❌ No se pudo iniciar sesión: ' + err.message);
+    }
 }
 
 // ============ LOGIN STAFF ============
@@ -266,9 +274,9 @@ async function mostrarPanelSegunRol() {
     if (usuarioSistema.rol === 'administrador') {
         mostrarVista('admin');
         await cargarPanelAdmin();
-    } else if (usuarioSistema.rol === 'supervisor') {
-        mostrarVista('supervisor');
-        await cargarPanelSupervisor();
+    } else if (['supervisor', 'docente'].includes(usuarioSistema.rol)) {
+        mostrarVista('docente');
+        await cargarPanelDocente();
     }
 }
 
@@ -277,22 +285,24 @@ function actualizarUIRol() {
     const area = document.getElementById('userArea');
     const navProg = document.getElementById('navProgreso');
     const navAdmin = document.getElementById('navAdmin');
-    const navSup = document.getElementById('navSupervisor');
+    const navDocente = document.getElementById('navDocente');
     navProg.style.display = 'none';
     navAdmin.style.display = 'none';
-    navSup.style.display = 'none';
+    navDocente.style.display = 'none';
 
     if (usuarioSistema) {
-        const nombre = usuarioSistema.nombre_completo.split(' ')[0];
-        const icono = usuarioSistema.rol === 'administrador' ? '👑' : '👨‍🏫';
+        const nombre = (usuarioSistema.nombre_completo || usuarioSistema.email || 'Usuario').split(' ')[0];
+        const esAdmin = usuarioSistema.rol === 'administrador';
+        const etiquetaRol = esAdmin ? 'Administrador' : 'Docente';
+        const icono = esAdmin ? '👑' : '👨‍🏫';
         area.innerHTML = `
-            <button class="btn-user">${icono} ${nombre} (${usuarioSistema.rol})</button>
+            <button class="btn-user">${icono} ${nombre} (${etiquetaRol})</button>
             <button class="btn-primary" onclick="cerrarSesion()" style="margin-left:8px">Salir</button>
         `;
         if (usuarioSistema.rol === 'administrador') navAdmin.style.display = 'inline-block';
-        if (usuarioSistema.rol === 'supervisor') navSup.style.display = 'inline-block';
+        if (['supervisor', 'docente'].includes(usuarioSistema.rol)) navDocente.style.display = 'inline-block';
     } else if (estudianteActual) {
-        const nombre = estudianteActual.nombre_completo.split(' ')[0];
+        const nombre = (estudianteActual.nombre_completo || estudianteActual.email || 'Estudiante').split(' ')[0];
         navProg.style.display = 'inline-block';
         area.innerHTML = `
             <button class="btn-user" onclick="mostrarVista('progreso')">👤 ${nombre}</button>
@@ -645,7 +655,7 @@ async function cargarPanelAdmin() {
         fetch(`${SUPABASE_URL}/rest/v1/progreso`, { headers: DB.headers }).then(r => r.json())
     ]);
     document.getElementById('admTotalEst').textContent = estudiantes.length;
-    document.getElementById('admTotalSup').textContent = usuarios.filter(u => u.rol === 'supervisor').length;
+    document.getElementById('admTotalSup').textContent = usuarios.filter(u => ['supervisor', 'docente'].includes(u.rol)).length;
     document.getElementById('admTotalCert').textContent = certificados.length;
     const aprobados = estudiantes.filter(est => {
         const suyos = todosProgresos.filter(p => p.estudiante_email === est.email && p.aprobada);
@@ -656,7 +666,7 @@ async function cargarPanelAdmin() {
         <tr>
             <td><b>${u.nombre_completo}</b></td>
             <td>${u.email}</td>
-            <td><span class="badge ${u.rol === 'administrador' ? 'badge-aprobada' : 'badge-fase'}">${u.rol}</span></td>
+            <td><span class="badge ${u.rol === 'administrador' ? 'badge-aprobada' : 'badge-fase'}">${u.rol === 'supervisor' || u.rol === 'docente' ? 'Docente' : 'Administrador'}</span></td>
             <td>${u.activo ? '✅ Activo' : '❌ Inactivo'}</td>
             <td>
                 <button class="btn-eval btn-eval-test" style="padding:6px 12px;font-size:12px;min-width:auto" 
@@ -720,7 +730,7 @@ async function crearUsuarioSistema(e) {
 }
 
 // ============ PANEL SUPERVISOR ============
-async function cargarPanelSupervisor() {
+async function cargarPanelDocente() {
     const [estudiantes, certificados, todosProgresos] = await Promise.all([
         DB.listarTodosEstudiantes(),
         DB.listarTodosCertificados(),

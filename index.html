@@ -30,7 +30,7 @@
             <a data-view="unidades">Unidades</a>
             <a data-view="progreso" id="navProgreso" style="display:none;">Mi Progreso</a>
             <a data-view="admin" id="navAdmin" style="display:none;">Panel Admin</a>
-            <a data-view="supervisor" id="navSupervisor" style="display:none;">Panel Supervisor</a>
+            <a data-view="docente" id="navDocente" style="display:none;">Panel Docente</a>
             <a data-view="acerca">Acerca de</a>
         </nav>
         <div id="userArea">
@@ -103,7 +103,7 @@
 
         <div class="stats">
             <div class="stat-card"><span class="stat-num" id="admTotalEst">0</span><span class="stat-label">Estudiantes</span></div>
-            <div class="stat-card"><span class="stat-num" id="admTotalSup">0</span><span class="stat-label">Supervisores</span></div>
+            <div class="stat-card"><span class="stat-num" id="admTotalSup">0</span><span class="stat-label">Docentes</span></div>
             <div class="stat-card"><span class="stat-num" id="admTotalCert">0</span><span class="stat-label">Certificados</span></div>
             <div class="stat-card"><span class="stat-num" id="admTotalAprob">0</span><span class="stat-label">Aprobados</span></div>
         </div>
@@ -147,21 +147,21 @@
     <!-- ============================================
          VISTA PANEL SUPERVISOR
          ============================================ -->
-    <section id="view-supervisor" class="view">
+    <section id="view-docente" class="view">
         <div class="view-header">
-            <h2>👨‍🏫 Panel de Supervisor</h2>
+            <h2>👨‍🏫 Panel de Docente</h2>
             <button class="btn-primary" onclick="cerrarSesion()">Cerrar Sesión</button>
         </div>
 
         <div class="stats">
-            <div class="stat-card"><span class="stat-num" id="supTotalEst">0</span><span class="stat-label">Mis Estudiantes</span></div>
+            <div class="stat-card"><span class="stat-num" id="supTotalEst">0</span><span class="stat-label">Estudiantes registrados</span></div>
             <div class="stat-card"><span class="stat-num" id="supTotalAprob">0</span><span class="stat-label">Aprobados</span></div>
             <div class="stat-card"><span class="stat-num" id="supPromedio">0.0</span><span class="stat-label">Promedio</span></div>
             <div class="stat-card"><span class="stat-num" id="supTotalCert">0</span><span class="stat-label">Certificados</span></div>
         </div>
 
         <div class="progreso-card">
-            <h3>📊 Avance de Estudiantes</h3>
+            <h3>📊 Seguimiento académico general</h3>
             <table class="progreso-tabla">
                 <thead>
                     <tr>
@@ -300,14 +300,13 @@
     <div class="modal-content">
         <span class="modal-close" onclick="cerrarModal('modalStaff')">&times;</span>
         <h3>🔐 Acceso Staff UNES</h3>
-        <p class="modal-sub">Solo supervisores y administradores</p>
+        <p class="modal-sub">Acceso para docentes y administradores</p>
         <form id="formStaff">
             <input type="email" id="staffEmail" placeholder="Correo institucional" required>
             <input type="password" id="staffPassword" placeholder="Contraseña" required>
             <button type="submit" class="btn-primary btn-block">Ingresar</button>
             <p class="hint">
-                Demo admin: <b>admin@unes.com.ve</b> / admin123<br>
-                Demo supervisor: <b>supervisor@unes.com.ve</b> / super123
+                Si no tienes acceso, solicita al administrador que verifique tu cuenta y active tu usuario.
             </p>
         </form>
     </div>
@@ -328,7 +327,7 @@
             <input type="password" id="nuPassword" placeholder="Contraseña" required>
             <select id="nuRol" required>
                 <option value="">Selecciona rol</option>
-                <option value="supervisor">Supervisor</option>
+                <option value="supervisor">Docente</option>
                 <option value="administrador">Administrador</option>
             </select>
             <button type="submit" class="btn-primary btn-block">Crear Usuario</button>
