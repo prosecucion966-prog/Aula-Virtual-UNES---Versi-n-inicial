@@ -58,6 +58,17 @@ module.exports = async (req, res) => {
         return send(res, 201, { user: publicUser(account.rows[0]), estudiante: student.rows[0] });
       } catch (e) { await client.query('ROLLBACK'); throw e; } finally { client.release(); }
     }
+    if (route === 'auth/bootstrap-admin' && req.method === 'POST') {
+      if (!process.env.BOOTSTRAP_SECRET || req.headers['x-bootstrap-secret'] !== process.env.BOOTSTRAP_SECRET) return send(res, 403, { error: 'No autorizado.' });
+      const count = await db().query("SELECT count(*)::int AS total FROM usuarios WHERE rol='administrador'");
+      if (count.rows[0].total > 0) return send(res, 409, { error: 'Ya existe una cuenta administradora. Desactiva BOOTSTRAP_SECRET.' });
+      const { nombre, email, password } = req.body || {};
+      const normalized = String(email || '').trim().toLowerCase();
+      if (!nombre || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(normalized) || typeof password !== 'string' || password.length < 12) return send(res, 400, { error: 'Datos inválidos. La contraseña debe tener al menos 12 caracteres.' });
+      const hash = await bcrypt.hash(password, 12);
+      const created = await db().query("INSERT INTO usuarios(nombre,email,password_hash,rol,activo) VALUES($1,$2,$3,'administrador',true) RETURNING id,nombre,email,rol,activo", [String(nombre).trim(), normalized, hash]);
+      return send(res, 201, { user: publicUser(created.rows[0]), warning: 'Retira BOOTSTRAP_SECRET de Vercel inmediatamente.' });
+    }
     if (route === 'auth/login' && req.method === 'POST') {
       const email = String(req.body?.email || '').trim().toLowerCase();
       const password = req.body?.password;
